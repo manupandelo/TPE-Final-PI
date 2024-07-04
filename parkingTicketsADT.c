@@ -20,10 +20,10 @@ struct parkingTicketsCDT
     /*QUERY 1*/
     int * infractionsAmm;
     /*QUERY 1*/
-
     /*QUERY 2*/
     agencyList first;
     /*QUERY 2*/
 };
 
-void 
+parkingTicketsADT newADT()
+

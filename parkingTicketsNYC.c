@@ -5,7 +5,7 @@
 #include <time.h>  
 #include <assert.h>
 #include <string.h>
-#include "query1ADT.h"
+#include "parkingTicketsADT.h"
 
 typedef struct data{
     char plate[11];
