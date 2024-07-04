@@ -13,7 +13,20 @@ typedef struct agencyNode{
     struct agencyNode * tail;
 }agencyNode;
 
-typedef struct agency * agencyList;
+typedef struct agencyNode * agencyList;
+
+typedef struct plateNode{
+    char plate[11];
+    int cant;
+    struct plateNode * tail;
+}plateNode;
+
+typedef struct plateNode * plateList;
+
+typedef struct infraction{
+    plateList first;
+}infraction;
+
 
 struct parkingTicketsCDT
 {
@@ -24,6 +37,9 @@ struct parkingTicketsCDT
     /*QUERY 2*/
     agencyList first;
     /*QUERY 2*/
+    /*QUERY 3*/
+    infraction * infractionPlate;
+    /*QUERY 3*/
 };
 
 parkingTicketsADT newADT(void){

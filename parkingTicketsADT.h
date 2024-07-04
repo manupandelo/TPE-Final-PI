@@ -18,6 +18,7 @@ typedef struct data{
 typedef struct parkingTicketsCDT * parkingTicketsADT;
 
 void query1Read(parkingTicketsADT q, int infractionId);
+
 parkingTicketsADT newADT(void);
 
 
