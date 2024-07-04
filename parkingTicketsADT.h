@@ -15,7 +15,7 @@ typedef struct data{
     int infractionId; 
 }data;
 
-typedef struct query1CDT * query1ADT;
+typedef struct parkingTicketsCDT * parkingTicketsADT;
 
 
 #endif

@@ -26,4 +26,3 @@ struct parkingTicketsCDT
     /*QUERY 2*/
 };
 
-void 
