@@ -18,11 +18,13 @@ int main(int argc, char const *argv[])
 {
     FILE * file = fopen(argv[1], "r");
     data fine;
+    parkingTicketsADT ticket = newADT();
+    
     /* Aca agarra los datos de la linea del CSV y los pone en las variables*/ /* No se si esta bien hecho para que no agarre los datos no necesitamos*/
     /* De aca hacemos todo el programa, ya que tenemos todo separado bien en los datos como los vamos a usar*/
     while (fscanf(file,"%10[^;];;%d;;%35[^;]\n",fine.plate , fine.infractionId, fine.issuingAgency ) == 3) 
     {                                                                                                      
-                                                         
+        query1Read(ticket, fine.infractionId);                                               
     }
     return 0;
 }

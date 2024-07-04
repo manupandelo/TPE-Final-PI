@@ -26,3 +26,21 @@ struct parkingTicketsCDT
     /*QUERY 2*/
 };
 
+parkingTicketsADT newADT(void){
+
+}
+
+/*Funcion que suma 1 en infractionsAmm en el index del infractionId - 1*/
+void query1Read(parkingTicketsADT q, int infractionId){
+
+}
+
+/* Funcion que busca la issuingAgnecy que corresponda por la lista sumar en el InfractionId que corresponda*/
+void query2Read(parkingTicketsADT q, int infractionId, char issuingAgency[]){
+
+}
+
+
+
+
+
