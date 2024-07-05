@@ -9,7 +9,7 @@
 #include "parkingTicketsADT.h"
 
 typedef struct agencyNode{
-    int * infractions;
+    size_t * infractions;
     char issuingAgency[35];
     struct agencyNode * tail;
 }agencyNode;
@@ -18,7 +18,7 @@ typedef struct agencyNode * agencyList;
 
 typedef struct plateNode{
     char plate[11];
-    int cant;
+    size_t cant;
     struct plateNode * tail;
 }plateNode;
 
@@ -32,7 +32,7 @@ typedef struct infraction{
 typedef struct parkingTicketsCDT
 {
     /*QUERY 1*/
-    int * infractionsAmm;
+    size_t * infractionsAmm;
     /*QUERY 1*/
 
     /*QUERY 2*/
