@@ -58,15 +58,18 @@ parkingTicketsADT newADT(void){
 
 /*Funcion que suma 1 en infractionsAmm en el index del infractionId*/
 void query1Read(parkingTicketsADT q, int infractionId){
-    if (q->arrQ1Size + 1< infractionId)
+    if (infractionId + 1 > q->arrQ1Size)
     {
        if (infractionId + 1 > q->arrQ1Size + BLOQUE)
        {
         q->arrQ1 = realloc(infractionId + 1, sizeof(int));
+        q->arrQ1Size = infractionId + 1;
        }
-       
+       else{
+        q->arrQ1 = realloc(q->arrQ1Size + BLOQUE, sizeof(int));
+        q->arrQ1Size += BLOQUE;
+       }  
     }
-    
     q->arrQ1[infractionId] += 1;
 }
 
