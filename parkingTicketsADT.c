@@ -29,7 +29,6 @@ typedef struct infraction{
     plateList first;
 }infraction;
 
-
 typedef struct parkingTicketsCDT
 {
     /*QUERY 1*/
@@ -44,7 +43,7 @@ typedef struct parkingTicketsCDT
     infraction * arrQ3;
     /*QUERY 3*/
 
-} parkingTicketsCDT;
+}parkingTicketsCDT;
 
 parkingTicketsADT newADT(void){
     errno=0;
@@ -55,8 +54,24 @@ parkingTicketsADT newADT(void){
     return aux;
 }
 
-/*Funcion que suma 1 en infractionsAmm en el index del infractionId - 1*/
+/*Funcion que suma 1 en infractionsAmm en el index del infractionId*/
 void query1Read(parkingTicketsADT q, int infractionId){
+
+}
+
+/*Funcion que va recibiendo los datos del archivo de infracciones y arma la q1List*/
+/*Devuelve un puntero al primero*/
+q1List arrToListQ1(parkingTicketsADT q, int infractionId, char infractionName[], q1List l){
+
+}
+
+/*Funcion recursiva que con la q1List arma el CSV del query 1*/
+void arrToQ1CSV(FILE * query1File, q1List first){
+    if (first == NULL)
+    {
+        return;
+    }
+    
 
 }
 
@@ -68,21 +83,21 @@ void query2Read(parkingTicketsADT q, int infractionId, char issuingAgency[]){
     {
         agencyList aux = malloc(sizeof(agencyNode));
         strcpy(aux->issuingAgencyName, issuingAgency);
-        aux->infractionsArr = calloc(infractionId, sizeof(int));
+        aux->infractionsArr = calloc(infractionId + 1, sizeof(int));
         aux->tail = q->firstQ2;
         aux->arrSize = infractionId;
         q->firstQ2 = aux;
-        aux->infractionsArr[infractionId - 1] += 1;
+        aux->infractionsArr[infractionId] += 1;
     }
 
     if (strcmp(q->firstQ2->issuingAgencyName, issuingAgency) == 0)
     {
-        if (q->firstQ2->arrSize < infractionId - 1)
+        if (q->firstQ2->arrSize < infractionId)
         {
         /* REALLOC POR BLOQUES A INFRACTIONSARR */
         /* FUNCION QUE SETEE TODOS LOS LUGARES NUEVOS DEL ARREGLO EN 0 */
         }
-        q->firstQ2->infractionsArr[infractionId - 1] += 1;
+        q->firstQ2->infractionsArr[infractionId] += 1;
     
     }
     /* RECURSIVA QUE BUSQUE LA AGENCY */
