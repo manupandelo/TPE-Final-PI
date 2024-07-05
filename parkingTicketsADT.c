@@ -29,12 +29,10 @@ typedef struct infraction{
     plateList first;
 }infraction;
 
-
 typedef struct parkingTicketsCDT
 {
     /*QUERY 1*/
-    size_t * arrQ1;
-    size_t arrQ1Size; 
+    int * arrQ1; 
     /*QUERY 1*/
 
     /*QUERY 2*/
@@ -47,6 +45,8 @@ typedef struct parkingTicketsCDT
 
 }parkingTicketsCDT;
 
+
+// Creo un nuevo ADT
 parkingTicketsADT newADT(void){
     errno=0;
     parkingTicketsADT aux = calloc(1,sizeof(parkingTicketsCDT));
@@ -81,11 +81,10 @@ void query1Read(parkingTicketsADT q, int infractionId){
 /*Funcion que va recibiendo los datos del archivo de infracciones y arma la q1List*/
 /*Devuelve un puntero al primero*/
 q1List arrToListQ1(parkingTicketsADT q, int infractionId, char infractionName[], q1List l){
-    
+
 }
 
-
-
+/*Funcion recursiva que con la q1List arma el CSV del query 1*/
 static void recListToQ1CSV(FILE * query1File, q1List l){
     if (l == NULL)
     {
@@ -105,23 +104,18 @@ void listToQ1CSV(FILE * query1File, q1List first){
     }
     fprintf(query1File, "%s;%d\n", first->infractionName, first->infractionsAmm);
 
-    recListToQ1CSV(query1File, first->tail);   
-
-}
-
-void freeQ1List( q1List l){
-
+    recListToQ1CSV(query1File, first->tail);
 }
 
 /* Funcion que busca la issuingAgnecy que corresponda por la lista sumar en el InfractionId que corresponda*/
-/*HAY Q TERMINARLA*/
-/*HAY Q HACER LA RECURSIVA Q BUSQUE SOBRE LA LISTA*/
 void query2Read(parkingTicketsADT q, int infractionId, char issuingAgency[]){
 
     
     if (q->firstQ2 == NULL || strcmp(q->firstQ2->issuingAgencyName, issuingAgency) > 0)
     {
         agencyList aux = malloc(sizeof(agencyNode));
+        if( aux == NULL || errno == ENOMEM)
+            return NULL;
         strcpy(aux->issuingAgencyName, issuingAgency);
         aux->infractionsArr = calloc(infractionId + 1, sizeof(int));
         aux->tail = q->firstQ2;
@@ -145,6 +139,16 @@ void query2Read(parkingTicketsADT q, int infractionId, char issuingAgency[]){
 }
 
 
+
+
+/*Paso los datos de la lista ordenada en orden alfabetico de las agencias
+a una lista (q2List) ordenada alfabeticamente por nombre de agencia con las infracciones 
+mas populares por agencia
+(tener en cuenta que nombre de infraccion desempata)
+*/
+q2List query2Processing(parkingTicketsADT q){
+
+}
 
 
 
