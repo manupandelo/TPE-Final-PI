@@ -7,12 +7,7 @@
 #include <string.h>
 #include "parkingTicketsADT.h"
 
-typedef struct data{
-    char plate[11];
-    char issuingAgency[35];
-    int infractionId;
-    char infractionName[31]; 
-}data;
+
 
 
 /*HAY QUE HACER BIEN EL MANEJO DE ERRORES CUANDO ABRO ARCHIVOS*/
@@ -39,7 +34,8 @@ int main(int argc, char const *argv[])
     /* De aca hacemos todo el programa, ya que tenemos todo separado bien en los datos como los vamos a usar*/
     while (fscanf(file,"%10[^;];%*[^;];%d;%*[^;];%35[^\n]\n",fine.plate , &fine.infractionId, fine.issuingAgency ) == 3) 
     {                                                                                                      
-        query1Read(tickets, fine.infractionId);                                               
+        query1Read(tickets, fine.infractionId);
+                
     }
 
     /*Aca leo el archivo de infracciones*/
@@ -51,6 +47,7 @@ int main(int argc, char const *argv[])
     while (fscanf(infractionFile, "%d;%30[^;];"), &fine.infractionId, fine.infractionName)
     {
         firstQ1List = arrToListQ1(tickets, fine.infractionId, fine.infractionName, firstQ1List);
+        
     }
     
     /*Aca pongo los datos en el CSV del query1*/

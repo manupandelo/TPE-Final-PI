@@ -32,7 +32,8 @@ typedef struct infraction{
 typedef struct parkingTicketsCDT
 {
     /*QUERY 1*/
-    int * arrQ1; 
+    size_t * arrQ1;
+    size_t arrQ1Size; 
     /*QUERY 1*/
 
     /*QUERY 2*/
@@ -56,14 +57,25 @@ parkingTicketsADT newADT(void){
 
 /*Funcion que suma 1 en infractionsAmm en el index del infractionId*/
 void query1Read(parkingTicketsADT q, int infractionId){
-
+    if (q->arrQ1Size + 1< infractionId)
+    {
+       if (infractionId + 1 > q->arrQ1Size + BLOQUE)
+       {
+        q->arrQ1 = realloc(infractionId + 1, sizeof(int));
+       }
+       
+    }
+    
+    q->arrQ1[infractionId] += 1;
 }
 
 /*Funcion que va recibiendo los datos del archivo de infracciones y arma la q1List*/
 /*Devuelve un puntero al primero*/
 q1List arrToListQ1(parkingTicketsADT q, int infractionId, char infractionName[], q1List l){
-
+    
 }
+
+
 
 static void recListToQ1CSV(FILE * query1File, q1List l){
     if (l == NULL)
@@ -88,7 +100,12 @@ void listToQ1CSV(FILE * query1File, q1List first){
 
 }
 
+void freeQ1List( q1List l){
+
+}
+
 /* Funcion que busca la issuingAgnecy que corresponda por la lista sumar en el InfractionId que corresponda*/
+/*HAY Q TERMINARLA*/
 void query2Read(parkingTicketsADT q, int infractionId, char issuingAgency[]){
 
     

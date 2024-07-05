@@ -10,15 +10,17 @@
 #include <string.h>
 #include <errno.h>
 
-#define BLOQUE 20
-#define MAX_CHAR_PLATE 10
-#define MAX_CHAR_ISSUING_AGENCY
+#define BLOQUE 30
+#define MAX_CHAR_PLATE 11
+#define MAX_CHAR_ISSUING_AGENCY 36
+#define MAX_CHAR_ISSUING_AGENCY_NAME 31
 
 
 typedef struct data{
     char plate[MAX_CHAR_PLATE];
-    char issuingAgency[MAX_CHAR_PLATE];
-    size_t infractionId; 
+    char issuingAgency[MAX_CHAR_ISSUING_AGENCY];
+    int infractionId;
+    char infractionName[MAX_CHAR_ISSUING_AGENCY_NAME]; 
 }data;
 
 /*Lista ordenada descendentemente por infractionsAmm*/
