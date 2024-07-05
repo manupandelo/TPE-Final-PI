@@ -60,15 +60,20 @@ parkingTicketsADT newADT(void){
 void query1Read(parkingTicketsADT q, int infractionId){
     if (infractionId + 1 > q->arrQ1Size)
     {
-       if (infractionId + 1 > q->arrQ1Size + BLOQUE)
-       {
-        q->arrQ1 = realloc(infractionId + 1, sizeof(int));
-        q->arrQ1Size = infractionId + 1;
-       }
-       else{
-        q->arrQ1 = realloc(q->arrQ1Size + BLOQUE, sizeof(int));
-        q->arrQ1Size += BLOQUE;
-       }  
+        int i = q->arrQ1Size;
+        if (infractionId + 1 > q->arrQ1Size + BLOQUE)
+        {
+            q->arrQ1 = realloc(infractionId + 1, sizeof(int));
+            q->arrQ1Size = infractionId + 1;
+        }
+        else{
+            q->arrQ1 = realloc(q->arrQ1Size + BLOQUE, sizeof(int));
+            q->arrQ1Size += BLOQUE;
+        }  
+        while(i < q->arrQ1Size)
+        {
+            q->arrQ1[i++] = 0;
+        }       
     }
     q->arrQ1[infractionId] += 1;
 }
