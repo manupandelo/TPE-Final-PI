@@ -29,6 +29,7 @@ typedef struct infraction{
     plateList first;
 }infraction;
 
+
 typedef struct parkingTicketsCDT
 {
     /*QUERY 1*/
@@ -106,6 +107,7 @@ void freeQ1List( q1List l){
 
 /* Funcion que busca la issuingAgnecy que corresponda por la lista sumar en el InfractionId que corresponda*/
 /*HAY Q TERMINARLA*/
+/*HAY Q HACER LA RECURSIVA Q BUSQUE SOBRE LA LISTA*/
 void query2Read(parkingTicketsADT q, int infractionId, char issuingAgency[]){
 
     

@@ -23,6 +23,8 @@ typedef struct data{
     char infractionName[MAX_CHAR_ISSUING_AGENCY_NAME]; 
 }data;
 
+
+
 /*Lista ordenada descendentemente por infractionsAmm*/
 typedef struct q1Node{
     char infractionName[31];
