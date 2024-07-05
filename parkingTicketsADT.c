@@ -124,4 +124,14 @@ void query2Read(parkingTicketsADT q, int infractionId, char issuingAgency[]){
 
 
 
+/*Paso los datos de la lista ordenada en orden alfabetico de las agencias
+a una lista (q2List) ordenada alfabeticamente por nombre de agencia con las infracciones 
+mas populares por agencia
+(tener en cuenta que nombre de infraccion desempata)
+*/
+q2List query2Processing(parkingTicketsADT q){
+
+}
+
+
 
