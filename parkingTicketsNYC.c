@@ -22,6 +22,13 @@ typedef struct data{
         exit(EXIT_FAILURE);
     }
 */
+/*
+Para omitir la primera línea del archivo (que contiene el encabezado), 
+puedes usar fgets para leer y descartar la primera línea antes de comenzar
+a usar fscanf para leer los datos. Aquí hay una manera de hacerlo:
+    char header[256];
+    fgets(header, sizeof(header), file);
+*/
 int main(int argc, char const *argv[])
 {
     FILE * file = fopen(argv[1], "r");
@@ -30,7 +37,7 @@ int main(int argc, char const *argv[])
     
     /* Aca agarra los datos de la linea del CSV y los pone en las variables*/ /* No se si esta bien hecho para que no agarre los datos no necesitamos*/
     /* De aca hacemos todo el programa, ya que tenemos todo separado bien en los datos como los vamos a usar*/
-    while (fscanf(file,"%10[^;];;%d;;%35[^;]\n",fine.plate , &fine.infractionId, fine.issuingAgency ) == 3) 
+    while (fscanf(file,"%10[^;];%*[^;];%d;%*[^;];%35[^\n]\n",fine.plate , &fine.infractionId, fine.issuingAgency ) == 3) 
     {                                                                                                      
         query1Read(tickets, fine.infractionId);                                               
     }
@@ -48,8 +55,8 @@ int main(int argc, char const *argv[])
     
     /*Aca pongo los datos en el CSV del query1*/
     FILE * query1File = fopen(argv[3], "w");
+    listToQ1CSV(query1File, firstQ1List);
     
     
-
     return 0;
 }

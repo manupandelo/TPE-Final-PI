@@ -38,7 +38,7 @@ parkingTicketsADT newADT(void);
 
 q1List arrToListQ1(parkingTicketsADT q, int infractionId, char infractionName[], q1List l);
 
-
+void listToQ1CSV(FILE * query1File, q1List first);
 
 
 

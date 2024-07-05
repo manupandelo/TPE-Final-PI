@@ -65,13 +65,26 @@ q1List arrToListQ1(parkingTicketsADT q, int infractionId, char infractionName[],
 
 }
 
-/*Funcion recursiva que con la q1List arma el CSV del query 1*/
-void arrToQ1CSV(FILE * query1File, q1List first){
-    if (first == NULL)
+static void recListToQ1CSV(FILE * query1File, q1List l){
+    if (l == NULL)
     {
         return;
     }
+    fprintf(query1File, "%s;%d\n", l->infractionName, l->infractionsAmm);
+    recListToQ1CSV(query1File, l->tail);
     
+}
+
+/*Funcion recursiva que con la q1List arma el CSV del query 1*/
+void listToQ1CSV(FILE * query1File, q1List first){
+    if (first == NULL)
+    {
+        /*Por ahi que poner algun error, seria raro que este vacia la lista*/
+        return;
+    }
+    fprintf(query1File, "%s;%d\n", first->infractionName, first->infractionsAmm);
+
+    recListToQ1CSV(query1File, first->tail);   
 
 }
 
