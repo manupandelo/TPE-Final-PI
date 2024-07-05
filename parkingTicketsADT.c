@@ -5,6 +5,7 @@
 #include <time.h>  
 #include <assert.h>
 #include <string.h>
+#include <errno.h>
 #include "parkingTicketsADT.h"
 
 typedef struct agencyNode{
@@ -18,7 +19,7 @@ typedef struct agencyNode * agencyList;
 
 typedef struct plateNode{
     char plate[11];
-    int cant;
+    size_t cant;
     struct plateNode * tail;
 }plateNode;
 
@@ -29,7 +30,7 @@ typedef struct infraction{
 }infraction;
 
 
-struct parkingTicketsCDT
+typedef struct parkingTicketsCDT
 {
     /*QUERY 1*/
     int * arrQ1; 
@@ -38,13 +39,20 @@ struct parkingTicketsCDT
     /*QUERY 2*/
     agencyList firstQ2;
     /*QUERY 2*/
+    
     /*QUERY 3*/
     infraction * arrQ3;
     /*QUERY 3*/
-};
+
+} parkingTicketsCDT;
 
 parkingTicketsADT newADT(void){
+    errno=0;
+    parkingTicketsADT aux = calloc(1,sizeof(parkingTicketsCDT));
+    if( aux == NULL || errno == ENOMEM)
+        return NULL;
 
+    return aux;
 }
 
 /*Funcion que suma 1 en infractionsAmm en el index del infractionId - 1*/
