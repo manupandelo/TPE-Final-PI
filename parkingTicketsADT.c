@@ -27,12 +27,18 @@ typedef struct plateNode * plateList;
 
 typedef struct infraction{
     plateList first;
-}infraction;
+}infractionIdPlateArr;
+
+typedef struct infractionIdArr{
+    int infractionAmm;
+    char infractionName[31];
+}infractionIdArr;
 
 typedef struct parkingTicketsCDT
 {
     /*QUERY 1*/
-    int * arrQ1; 
+    infractionIdArr * arrQ1; 
+    size_t arrQ1Size;
     /*QUERY 1*/
 
     /*QUERY 2*/
@@ -40,7 +46,7 @@ typedef struct parkingTicketsCDT
     /*QUERY 2*/
     
     /*QUERY 3*/
-    infraction * arrQ3;
+    infractionIdPlateArr * arrQ3;
     /*QUERY 3*/
 
 }parkingTicketsCDT;
@@ -56,32 +62,74 @@ parkingTicketsADT newADT(void){
     return aux;
 }
 
-/*Funcion que suma 1 en infractionsAmm en el index del infractionId*/
-void query1Read(parkingTicketsADT q, int infractionId){
+void infractionIdToName(parkingTicketsADT q, int infractionId, char infractionName[]){
     if (infractionId + 1 > q->arrQ1Size)
     {
         int i = q->arrQ1Size;
         if (infractionId + 1 > q->arrQ1Size + BLOQUE)
         {
-            q->arrQ1 = realloc(infractionId + 1, sizeof(int));
             q->arrQ1Size = infractionId + 1;
+            q->arrQ1 = realloc(q->arrQ1, q->arrQ1Size * sizeof(infractionIdArr));
+            /*HAY QUE VALIDARLOS*/
+            
         }
         else{
-            q->arrQ1 = realloc(q->arrQ1Size + BLOQUE, sizeof(int));
             q->arrQ1Size += BLOQUE;
+            q->arrQ1 = realloc(q->arrQ1, q->arrQ1Size * sizeof(infractionIdArr));
+            /*HAY QUE VALIDARLOS*/
+            
         }  
         while(i < q->arrQ1Size)
         {
-            q->arrQ1[i++] = 0;
+            q->arrQ1[i].infractionAmm = 0;
+            q->arrQ1[i++].infractionName[0] = 0;
         }       
     }
-    q->arrQ1[infractionId] += 1;
+    strcpy(q->arrQ1[infractionId].infractionName, infractionName);
+}
+
+/*Funcion que suma 1 en infractionsAmm en el index del infractionId*/
+void query1Read(parkingTicketsADT q, int infractionId){
+    if (q->arrQ1Size <= infractionId)
+    {
+        return;
+    }
+    q->arrQ1[infractionId].infractionAmm += 1;
 }
 
 /*Funcion que va recibiendo los datos del archivo de infracciones y arma la q1List*/
 /*Devuelve un puntero al primero*/
-q1List arrToListQ1(parkingTicketsADT q, int infractionId, char infractionName[], q1List l){
+void recArrToListQ1(q1List next, q1List l){
+    if (next->tail == NULL || next->tail->infractionsAmm < l->infractionsAmm || ((next->tail->infractionsAmm == l->infractionsAmm) && strcmp(l->infractionName, next->tail->infractionName) < 0))
+    {
+        l->tail = next->tail;
+        next->tail = l;
+        return;
+    }
+    recArrToListQ1(next->tail, l);  
+}
 
+q1List arrToListQ1(parkingTicketsADT q){
+    q1List first = NULL;
+    for (size_t i = 0; i < q->arrQ1Size; i++)
+    {
+        if (q->arrQ1[i].infractionName[0] != 0) /*Si tiene nombre...*/
+        {
+            q1List aux = malloc(sizeof(q1Node));
+            aux->infractionsAmm = q->arrQ1[i].infractionAmm;
+            strcpy(aux->infractionName, q->arrQ1[i].infractionName);
+            if (first == NULL || first->infractionsAmm < aux->infractionsAmm || ((first->infractionsAmm == aux->infractionsAmm) && strcmp(aux->infractionName, first->infractionName) < 0))
+            {
+                aux->tail = first;
+                first = aux;
+            }else{
+                recArrToListQ1(first, aux);
+            }
+            
+        }  
+    }
+    return first;
+    
 }
 
 /*Funcion recursiva que con la q1List arma el CSV del query 1*/

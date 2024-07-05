@@ -25,19 +25,12 @@ typedef struct data{
 
 /*Lista ordenada descendentemente por infractionsAmm*/
 typedef struct q1Node{
-    char infractionName[31];
+    char infractionName[MAX_CHAR_INFRACTION_NAME];
     int infractionsAmm;
-    struct q1 * tail;
+    struct q1Node * tail;
 }q1Node;
 
 typedef q1Node * q1List;
-
-
-typedef struct infractionIdArr{
-    int infractionAmm;
-    char infractionName[31];
-}infractionIdArr;
-
 
 typedef struct q2Node{
     char issuingAgencyName[MAX_CHAR_ISSUING_AGENCY];
@@ -49,9 +42,11 @@ typedef q2Node * q2List;
 
 typedef struct parkingTicketsCDT * parkingTicketsADT;
 
-void query1Read(parkingTicketsADT q, int infractionId);
-
 parkingTicketsADT newADT(void);
+
+void infractionIdToName(parkingTicketsADT q, int infractionId, char infractionName[]);
+
+void query1Read(parkingTicketsADT q, int infractionId);
 
 q1List arrToListQ1(parkingTicketsADT q, int infractionId, char infractionName[], q1List l);
 

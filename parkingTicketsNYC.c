@@ -26,34 +26,23 @@ a usar fscanf para leer los datos. Aquí hay una manera de hacerlo:
 */
 int main(int argc, char const *argv[])
 {
-    FILE * file = fopen(argv[1], "r");
-    data fine;
-    parkingTicketsADT tickets = newADT();
-    
-    /* Aca agarra los datos de la linea del CSV y los pone en las variables*/ /* No se si esta bien hecho para que no agarre los datos no necesitamos*/
-    /* De aca hacemos todo el programa, ya que tenemos todo separado bien en los datos como los vamos a usar*/
-    while (fscanf(file,"%10[^;];%*[^;];%d;%*[^;];%35[^\n]\n",fine.plate , &fine.infractionId, fine.issuingAgency ) == 3) 
-    {                                                                                                      
-        query1Read(tickets, fine.infractionId);
-                
-    }
-
-    /*Aca leo el archivo de infracciones*/
     FILE * infractionFile = fopen(argv[2], "r");
-    data fine2;
-    q1List firstQ1List = NULL;
-
-    /*HAY QUE HACER BIEN LO DE "%d;%30[^;];" EN EL DE ARRIB TAMBIEN*/
-    while (fscanf(infractionFile, "%d;%30[^;];"), &fine.infractionId, fine.infractionName)
+    parkingTicketsADT ticket = newADT();
+    data fine;
+    /*Leo el file de las infracciones y me guardo las infracciones correspondientes
+    con su ID*/
+    
+    while (fscanf(infractionFile, "%d;%[^;];", &fine.infractionId, fine.infractionName ) == 2)
     {
-        firstQ1List = arrToListQ1(tickets, fine.infractionId, fine.infractionName, firstQ1List);
-        
+        infractionIdToName(ticket, fine.infractionId, fine.infractionName);
     }
     
-    /*Aca pongo los datos en el CSV del query1*/
-    FILE * query1File = fopen(argv[3], "w");
-    listToQ1CSV(query1File, firstQ1List);
+    /*Leo el file de los tickets*/
+    FILE * ticketFile = fopen(argv[1], "r");
+    while (fscanf(ticketFile, ""))
+    {
+        /* code */
+    }
     
-    
-    return 0;
+
 }
