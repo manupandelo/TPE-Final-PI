@@ -7,34 +7,30 @@
 #include <string.h>
 #include "parkingTicketsADT.h"
 
-void loadInfractions(parkingTicketsADT q, const char * infractionPath);
-/*
-Para omitir la primera línea del archivo (que contiene el encabezado), 
-puedes usar fgets para leer y descartar la primera línea antes de comenzar
-a usar fscanf para leer los datos. Aquí hay una manera de hacerlo:
-    char header[256];
-    fgets(header, sizeof(header), file);
-*/
 
-
-int main(int argc, char const *argv[]){
+int main(int argc, char const *argv[])
+{
     if (argc != 4)
         throwError("Error en la cantidad de argumentos");
-
-    const char * infractionPath = argv[2];
-    const char * ticketPath = argv[1];
-
-    parkingTicketsADT tickets = newADT();
-
+    parkingTicketsADT ticket = newADT();
     if (tickets == NULL)
         throwError("Error al reservar memoria");
-    
-    /*Leo el file de las infracciones y me guardo las infracciones correspondientes
-    con su ID*/
-    loadInfractions(tickets, infractionPath);
-    
-    /*Leo el file de los tickets*/
-    ticket fine;
+    data fine;
+    /*Lectura del file de infracciones*/
+    FILE * infractionFile = fopen(argv[2], "r");
+    if (!infractionFile) {
+        perror("Error opening file for writing");
+        exit(EXIT_FAILURE);
+    }
+    fscanf(infractionFile, "%*[^\n]\n");
+    while (fscanf(infractionFile, "%d;%30[^\n]", &fine.infractionId, fine.infractionName ) == 2)
+    {
+        infractionIdToName(ticket, fine.infractionId, fine.infractionName);
+    }
+    fclose(infractionFile);
+    /*Lectura del file de infracciones*/
+
+    /*Lectura del file de los tickets*/
     FILE * ticketFile = fopen(argv[1], "r");
     if (ticketFile == NULL) {
         freeADT(tickets);
@@ -45,18 +41,17 @@ int main(int argc, char const *argv[]){
         query1Read(tickets, fine.infractionId);
     }
     fclose(ticketFile);
-    q1List listaQ1 = arrToListQ1(tickets);
-    
+    q1List listaQ1 = arrToListQ1(ticket);
+    /*Lectura del file de los tickets*/
+
+    /*Resuelvo query1*/
     FILE * query1CSV = fopen(argv[3], "w");
     if (!query1CSV) {
         perror("Error opening file for writing");
         exit(EXIT_FAILURE);
     }
-    
     listToQ1CSV(query1CSV, listaQ1);
-
-    freeADT(tickets);
-    return 0;
+    /*Resuelvo query1*/
 }
 
 
