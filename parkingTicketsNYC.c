@@ -19,17 +19,7 @@ int main(int argc, char const *argv[])
 
     /*Lectura del file de infracciones*/
     FILE * infractionFile = fopen(argv[2], "r");
-    if (!infractionFile) {
-        perror("Error opening file for writing");
-        exit(EXIT_FAILURE);
-    }
-    fscanf(infractionFile, "%*[^\n]\n");
-    int flag = 1;
-    while (fscanf(infractionFile, "%d;%30[^\n]", &fine.infractionId, fine.infractionName ) == 2)
-    {
-        addInfraction(tickets, fine.infractionId, fine.infractionName, flag);
-        /*VALIDAR LO DEL FLAG*/
-    }
+    loadInfractions(tickets, infractionFile);
     fclose(infractionFile);
     /*Lectura del file de infracciones*/
 
@@ -60,8 +50,7 @@ int main(int argc, char const *argv[])
 
 //Funcion que recibe el archivo de infracciones y guarda los nombres de las infracciones con su ID
 
-void loadInfractions(parkingTicketsADT t, const char * infractionPath){
-    FILE * infractionFile = fopen(infractionPath, "r");
+void loadInfractions(parkingTicketsADT t, FILE * infractionFile){
     if(infractionFile == NULL){
         freeADT(t);
         throwError("Error at opening infractions file");
@@ -69,18 +58,10 @@ void loadInfractions(parkingTicketsADT t, const char * infractionPath){
 
     fscanf(infractionFile, "%*[^\n]\n");
 
-    int flag = 1;
     int infractionId;
     char infractionName[MAX_CHAR_INFRACTION_NAME];
 
-    while (fscanf(infractionFile, "%d;%30[^\n]\n", &infractionId, infractionName) == 2 && flag){
-        addInfraction(t, infractionId, infractionName, &flag);
-    }
-
-    fclose(infractionFile);
-    
-    if(flag == 0){
-        freeADT(t);
-        throwError("Memory error");
+    while (fscanf(infractionFile, "%d;%30[^\n]\n", &infractionId, infractionName) == 2){
+        addInfraction(t, infractionId, infractionName);
     }
 }

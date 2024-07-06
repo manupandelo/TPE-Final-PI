@@ -49,7 +49,7 @@ parkingTicketsADT newADT(void);
 
 // Funcion que recibe el archivo de tickets y guarda los datos de los tickets
 // Recibe un flag que se va a modificar si hay un error en la lectura del archivo
-void addInfraction(parkingTicketsADT q, int infractionId, char infractionName[], int * flag);
+void addInfraction(parkingTicketsADT q, int infractionId, char infractionName[]);
 
 void query1Read(parkingTicketsADT q, int infractionId);
 
