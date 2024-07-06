@@ -23,10 +23,7 @@ typedef struct ticket{
     char infractionName[MAX_CHAR_INFRACTION_NAME];
 }ticket;
 
-typedef struct infraction{
-    char infractionName[MAX_CHAR_INFRACTION_NAME];
-    size_t cant;
-}infraction;
+
 
 /*Lista ordenada descendentemente por infractionsAmm*/
 typedef struct q1Node{

@@ -29,10 +29,14 @@ typedef struct infraction{
     plateList first;
 }infractionIdPlateArr;
 
+typedef struct infractionIdArr{
+    char infractionName[MAX_CHAR_INFRACTION_NAME];
+    size_t cant;
+}infractionIdArr;
 
 typedef struct parkingTicketsCDT
 {
-    infraction * infractionArr; //Array de infracciones, despues cambio a una lista
+    infractionIdArr * infractionArr; //Array de infracciones, despues cambio a una lista
     size_t infArraySize; //Tamaño del array de infracciones
     
 
@@ -59,14 +63,14 @@ void addInfraction(parkingTicketsADT q, int infractionId, char infractionName[],
         if (infractionId + 1 > q->infArraySize + BLOQUE)
         {
             q->infArraySize = infractionId + 1;
-            q->infractionArr = realloc(q->infractionArr, q->infArraySize * sizeof(infraction));
+            q->infractionArr = realloc(q->infractionArr, q->infArraySize * sizeof(infractionIdArr));
             
             if(q->infractionArr == NULL || errno == ENOMEM)
                 *flag = 0;
         }
         else{
             q->infArraySize += BLOQUE;
-            q->infractionArr = realloc(q->infractionArr, q->infArraySize * sizeof(infraction));
+            q->infractionArr = realloc(q->infractionArr, q->infArraySize * sizeof(infractionIdArr));
             
             if(q->infractionArr == NULL || errno == ENOMEM)
                 *flag = 0;
