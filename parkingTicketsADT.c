@@ -187,11 +187,51 @@ void query2Read(parkingTicketsADT q, int infractionId, char issuingAgency[]){
     /* RECURSIVA QUE BUSQUE LA AGENCY */
     
 }
+
+
+static int my_strcasecmp(const char *s1, const char *s2) {
+    while (*s1 && *s2) {
+        int c1 = tolower((unsigned char)*s1);
+        int c2 = tolower((unsigned char)*s2);
+        if (c1 != c2) {
+            return c1 - c2;
+        }
+        s1++;
+        s2++;
+    }
+    return tolower((unsigned char)*s1) - tolower((unsigned char)*s2);
+}
 /*Encuentra la maxima infraccion por issuing agency la pone en maxInfractionName
 y maxInfractionAmm.
 si empatan se define por el nombre, usar el arreglo del query 1 para esto*/
-void query2Processing(parkingTicketsADT q){
 
+static agencyList query2ProcessingRec(agencyList l, infractionIdArr * arr){
+    if(l==NULL)
+        return NULL;
+
+    l->tail = query2ProcessingRec(l->tail, arr);
+
+    size_t idxMayor = 0;
+    for(size_t i = 1; i < l->maxArrIndex; i++ ){
+        if(arr[i]->infractionName != '\0'){
+                if(l->infractionsArr[i] > l->infractionsArr[idxMayor]){
+                    idxMayor = i;
+                } else if(l->infractionsArr[i] == l->infractionsArr[idxMayor]){
+                    if(my_strcasecmp(arr[idxMayor]->infractionName ,arr[i]->infractionName)>0){
+                    idxMayor = i;
+                }
+            }
+        }
+    }
+
+    l->maxInfractionAmm = l->infractionsArr[idxMayor];
+    strcpy(l->maxInfractionName, arr[idxMayor]->infractionName);
+
+    return l;
+}
+
+void query2Processing(parkingTicketsADT q){
+    q->firstQ2 = query2ProcessingRec(q->firstQ2,q->infArraySize);
 }
 
 void recQuery2ToCSV(FILE * query2File, agencyList l){
@@ -225,6 +265,9 @@ static void freeRec(q1List l){
 }
 
 void freeADT(parkingTicketsADT t){
+    for(int i = 0; i<t->infArraySize; i++){
+        free(t->infractionArr[i].infractionName);
+    }
     free(t->infractionArr);
     free(t->arrQ3);
     freeRec(t->firstQ2);
