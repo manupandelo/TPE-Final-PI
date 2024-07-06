@@ -29,17 +29,12 @@ typedef struct infraction{
     plateList first;
 }infractionIdPlateArr;
 
-typedef struct infractionIdArr{
-    int infractionAmm;
-    char infractionName[31];
-}infractionIdArr;
 
 typedef struct parkingTicketsCDT
 {
-    /*QUERY 1*/
-    infractionIdArr * arrQ1; 
-    size_t arrQ1Size;
-    /*QUERY 1*/
+    infraction * infractionArr; //Array de infracciones, despues cambio a una lista
+    size_t infArraySize; //Tamaño del array de infracciones
+    
 
     /*QUERY 2*/
     agencyList firstQ2;
@@ -54,47 +49,43 @@ typedef struct parkingTicketsCDT
 
 // Creo un nuevo ADT
 parkingTicketsADT newADT(void){
-    errno=0;
-    parkingTicketsADT aux = calloc(1,sizeof(parkingTicketsCDT));
-    if( aux == NULL || errno == ENOMEM)
-        return NULL;
-
-    return aux;
+    return calloc(1,sizeof(parkingTicketsCDT));
 }
 
-void infractionIdToName(parkingTicketsADT q, int infractionId, char infractionName[]){
-    if (infractionId + 1 > q->arrQ1Size)
+void addInfraction(parkingTicketsADT q, int infractionId, char infractionName[], int * flag){
+    if (infractionId +1 > q->infArraySize)
     {
-        int i = q->arrQ1Size;
-        if (infractionId + 1 > q->arrQ1Size + BLOQUE)
+        int i = q->infArraySize;
+        if (infractionId + 1 > q->infArraySize + BLOQUE)
         {
-            q->arrQ1Size = infractionId + 1;
-            q->arrQ1 = realloc(q->arrQ1, q->arrQ1Size * sizeof(infractionIdArr));
-            /*HAY QUE VALIDARLOS*/
+            q->infArraySize = infractionId + 1;
+            q->infractionArr = realloc(q->infractionArr, q->infArraySize * sizeof(infraction));
             
+            if(q->infractionArr == NULL || errno == ENOMEM)
+                *flag = 0;
         }
         else{
-            q->arrQ1Size += BLOQUE;
-            q->arrQ1 = realloc(q->arrQ1, q->arrQ1Size * sizeof(infractionIdArr));
-            /*HAY QUE VALIDARLOS*/
+            q->infArraySize += BLOQUE;
+            q->infractionArr = realloc(q->infractionArr, q->infArraySize * sizeof(infraction));
+            
+            if(q->infractionArr == NULL || errno == ENOMEM)
+                *flag = 0;
             
         }  
-        while(i < q->arrQ1Size)
-        {
-            q->arrQ1[i].infractionAmm = 0;
-            q->arrQ1[i++].infractionName[0] = '\0';
-        }       
+        while(i < q->infArraySize){
+            q->infractionArr[i].cant = 0;
+            q->infractionArr[i++].infractionName[0] = '\0';
+        }     
     }
-    strcpy(q->arrQ1[infractionId].infractionName, infractionName);
+    strcpy(q->infractionArr[infractionId].infractionName, infractionName);
 }
 
 /*Funcion que suma 1 en infractionsAmm en el index del infractionId*/
 void query1Read(parkingTicketsADT q, int infractionId){
-    if (q->arrQ1Size <= infractionId)
-    {
+    if (q->infArraySize <= infractionId){
         return;
     }
-    q->arrQ1[infractionId].infractionAmm += 1;
+    q->infractionArr[infractionId].cant += 1;
 }
 
 
@@ -113,13 +104,13 @@ void recArrToListQ1(q1List next, q1List l){
 
 q1List arrToListQ1(parkingTicketsADT q){
     q1List first = NULL;
-    for (size_t i = 0; i < q->arrQ1Size; i++)
+    for (size_t i = 0; i < q->infArraySize; i++)
     {
-        if (q->arrQ1[i].infractionName[0] != '\0') /*Si tiene nombre lo agrego*/
+        if (q->infractionArr[i].infractionName[0] != '\0') /*Si tiene nombre lo agrego*/
         {
             q1List aux = malloc(sizeof(q1Node));
-            aux->infractionsAmm = q->arrQ1[i].infractionAmm;
-            strcpy(aux->infractionName, q->arrQ1[i].infractionName);
+            aux->infractionsAmm = q->infractionArr[i].cant;
+            strcpy(aux->infractionName, q->infractionArr[i].infractionName);
             if (first == NULL || first->infractionsAmm < aux->infractionsAmm || ((first->infractionsAmm == aux->infractionsAmm) && strcmp(aux->infractionName, first->infractionName) < 0))
             {
                 aux->tail = first;
@@ -141,8 +132,7 @@ static void recListToQ1CSV(FILE * query1File, q1List l){
         return;
     }
     fprintf(query1File, "%s;%d\n", l->infractionName, l->infractionsAmm);
-    recListToQ1CSV(query1File, l->tail);
-    
+    recListToQ1CSV(query1File, l->tail);    
 }
 
 /*Funcion recursiva que con la q1List arma el CSV del query 1*/
@@ -186,6 +176,25 @@ void query2Read(parkingTicketsADT q, int infractionId, char issuingAgency[]){
     }
     /* RECURSIVA QUE BUSQUE LA AGENCY */
     
+}
+
+void throwError(const char * msg){
+    fprintf(stderr, "%s\n", msg);
+    exit(EXIT_FAILURE);
+}
+
+static void freeRec(q1List l){
+    if (l != NULL){
+        freeRec(l->tail);
+        free(l);
+    }
+}
+
+void freeADT(parkingTicketsADT t){
+    free(t->infractionArr);
+    free(t->arrQ3);
+    freeRec(t->firstQ2);
+    free(t);
 }
 
 

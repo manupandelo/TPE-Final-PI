@@ -16,12 +16,17 @@
 #define MAX_CHAR_INFRACTION_NAME 31
 
 
-typedef struct data{
+typedef struct ticket{
     char plate[MAX_CHAR_PLATE];
-    char issuingAgency[MAX_CHAR_ISSUING_AGENCY];
+    char agency[MAX_CHAR_ISSUING_AGENCY];
     int infractionId;
-    char infractionName[MAX_CHAR_INFRACTION_NAME]; 
-}data;
+    char infractionName[MAX_CHAR_INFRACTION_NAME];
+}ticket;
+
+typedef struct infraction{
+    char infractionName[MAX_CHAR_INFRACTION_NAME];
+    size_t cant;
+}infraction;
 
 /*Lista ordenada descendentemente por infractionsAmm*/
 typedef struct q1Node{
@@ -42,9 +47,12 @@ typedef q2Node * q2List;
 
 typedef struct parkingTicketsCDT * parkingTicketsADT;
 
+// Creo un nuevo ADT que va a devolver un puntero a la estructura parkingTicketsCDT
 parkingTicketsADT newADT(void);
 
-void infractionIdToName(parkingTicketsADT q, int infractionId, char infractionName[]);
+// Funcion que recibe el archivo de tickets y guarda los datos de los tickets
+// Recibe un flag que se va a modificar si hay un error en la lectura del archivo
+void addInfraction(parkingTicketsADT q, int infractionId, char infractionName[], int * flag);
 
 void query1Read(parkingTicketsADT q, int infractionId);
 
@@ -52,6 +60,9 @@ q1List arrToListQ1(parkingTicketsADT q);
 
 void listToQ1CSV(FILE * query1File, q1List first);
 
+void throwError(const char * msg);
+
+void freeADT(parkingTicketsADT q);
 
 
 #endif
