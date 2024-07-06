@@ -8,10 +8,16 @@
 #include <errno.h>
 #include "parkingTicketsADT.h"
 
+/*Lista ordenada alfabeticamente por nombre de agencia
+con arreglo indexado por infractionId.
+Tambien contiene el maximo infraction ammount
+y el nombre de dicha infraccion*/
 typedef struct agencyNode{
-    char issuingAgencyName[36];
-    int * infractionsArr;
-    int arrSize;
+    char issuingAgencyName[MAX_CHAR_ISSUING_AGENCY];
+    size_t * infractionsArr;
+    size_t arrSize;
+    size_t maxInfractionAmm;
+    char maxInfractionName[MAX_CHAR_INFRACTION_NAME];
     struct agencyNode * tail;
 }agencyNode;
 
@@ -180,6 +186,30 @@ void query2Read(parkingTicketsADT q, int infractionId, char issuingAgency[]){
     }
     /* RECURSIVA QUE BUSQUE LA AGENCY */
     
+}
+/*Encuentra la maxima infraccion por issuing agency la pone en maxInfractionName
+y maxInfractionAmm.
+si empatan se define por el nombre, usar el arreglo del query 1 para esto*/
+void query2Processing(parkingTicketsADT q){
+
+}
+
+void recQuery2ToCSV(FILE * query2File, agencyList l){
+    if (l == NULL)
+    {
+        return;
+    }
+    fprintf(query2File,"%s;%s;%d\n",l->issuingAgencyName, l->maxInfractionName, l->maxInfractionAmm);
+    recQuery2ToCSV(query2File, l->tail);
+}
+
+void query2ToCSV(FILE * query2File, parkingTicketsADT q){
+    if (q->firstQ2 == NULL)
+    {
+        return;
+    }
+    fprintf(query2File,"%s;%s;%d\n", q->firstQ2->issuingAgencyName, q->firstQ2->maxInfractionName, q->firstQ2->maxInfractionAmm);
+    recQuery2ToCSV(query2File, q->firstQ2->tail);
 }
 
 void throwError(const char * msg){
