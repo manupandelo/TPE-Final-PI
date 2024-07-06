@@ -24,25 +24,49 @@ a usar fscanf para leer los datos. Aquí hay una manera de hacerlo:
     char header[256];
     fgets(header, sizeof(header), file);
 */
+
+
 int main(int argc, char const *argv[])
 {
     FILE * infractionFile = fopen(argv[2], "r");
+    if (!infractionFile) {
+        perror("Error opening file for writing");
+        exit(EXIT_FAILURE);
+    }
+
     parkingTicketsADT ticket = newADT();
     data fine;
     /*Leo el file de las infracciones y me guardo las infracciones correspondientes
     con su ID*/
-    
-    while (fscanf(infractionFile, "%d;%[^;];", &fine.infractionId, fine.infractionName ) == 2)
+
+    fscanf(infractionFile, "%*[^\n]\n");
+    while (fscanf(infractionFile, "%d;%30[^\n]", &fine.infractionId, fine.infractionName ) == 2)
     {
         infractionIdToName(ticket, fine.infractionId, fine.infractionName);
     }
-    
+    fclose(infractionFile);
+
+
     /*Leo el file de los tickets*/
     FILE * ticketFile = fopen(argv[1], "r");
-    while (fscanf(ticketFile, ""))
+    if (!ticketFile) {
+        perror("Error opening file for writing");
+        exit(EXIT_FAILURE);
+    }
+    fscanf(ticketFile, "%*[^\n]\n");
+    while (fscanf(ticketFile, "%10[^;];%*[^;];%d;%*[^;];%35[^\n]\n", fine.plate, &fine.infractionId, fine.infractionName) == 3)
     {
-        /* code */
+        query1Read(ticket, fine.infractionId);
+    }
+    fclose(ticketFile);
+    q1List listaQ1 = arrToListQ1(ticket);
+    
+    FILE * query1CSV = fopen(argv[3], "w");
+    if (!query1CSV) {
+        perror("Error opening file for writing");
+        exit(EXIT_FAILURE);
     }
     
+    listToQ1CSV(query1CSV, listaQ1);
 
 }

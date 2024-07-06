@@ -48,7 +48,7 @@ void infractionIdToName(parkingTicketsADT q, int infractionId, char infractionNa
 
 void query1Read(parkingTicketsADT q, int infractionId);
 
-q1List arrToListQ1(parkingTicketsADT q, int infractionId, char infractionName[], q1List l);
+q1List arrToListQ1(parkingTicketsADT q);
 
 void listToQ1CSV(FILE * query1File, q1List first);
 

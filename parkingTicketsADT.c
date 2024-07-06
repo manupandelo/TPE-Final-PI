@@ -82,7 +82,7 @@ void infractionIdToName(parkingTicketsADT q, int infractionId, char infractionNa
         while(i < q->arrQ1Size)
         {
             q->arrQ1[i].infractionAmm = 0;
-            q->arrQ1[i++].infractionName[0] = 0;
+            q->arrQ1[i++].infractionName[0] = '\0';
         }       
     }
     strcpy(q->arrQ1[infractionId].infractionName, infractionName);
@@ -97,8 +97,8 @@ void query1Read(parkingTicketsADT q, int infractionId){
     q->arrQ1[infractionId].infractionAmm += 1;
 }
 
-/*Funcion que va recibiendo los datos del archivo de infracciones y arma la q1List*/
-/*Devuelve un puntero al primero*/
+
+
 void recArrToListQ1(q1List next, q1List l){
     if (next->tail == NULL || next->tail->infractionsAmm < l->infractionsAmm || ((next->tail->infractionsAmm == l->infractionsAmm) && strcmp(l->infractionName, next->tail->infractionName) < 0))
     {
@@ -108,12 +108,14 @@ void recArrToListQ1(q1List next, q1List l){
     }
     recArrToListQ1(next->tail, l);  
 }
+/*Funcion que va recibiendo los datos del archivo de infracciones y arma la q1List*/
+/*Devuelve un puntero al primero*/
 
 q1List arrToListQ1(parkingTicketsADT q){
     q1List first = NULL;
     for (size_t i = 0; i < q->arrQ1Size; i++)
     {
-        if (q->arrQ1[i].infractionName[0] != 0) /*Si tiene nombre...*/
+        if (q->arrQ1[i].infractionName[0] != '\0') /*Si tiene nombre lo agrego*/
         {
             q1List aux = malloc(sizeof(q1Node));
             aux->infractionsAmm = q->arrQ1[i].infractionAmm;
@@ -187,16 +189,6 @@ void query2Read(parkingTicketsADT q, int infractionId, char issuingAgency[]){
 }
 
 
-
-
-/*Paso los datos de la lista ordenada en orden alfabetico de las agencias
-a una lista (q2List) ordenada alfabeticamente por nombre de agencia con las infracciones 
-mas populares por agencia
-(tener en cuenta que nombre de infraccion desempata)
-*/
-q2List query2Processing(parkingTicketsADT q){
-
-}
 
 
 
