@@ -12,10 +12,11 @@ int main(int argc, char const *argv[])
 {
     if (argc != 4)
         throwError("Error en la cantidad de argumentos");
-    parkingTicketsADT ticket = newADT();
+    parkingTicketsADT tickets = newADT();
     if (tickets == NULL)
         throwError("Error al reservar memoria");
-    data fine;
+    ticket fine;
+
     /*Lectura del file de infracciones*/
     FILE * infractionFile = fopen(argv[2], "r");
     if (!infractionFile) {
@@ -23,9 +24,11 @@ int main(int argc, char const *argv[])
         exit(EXIT_FAILURE);
     }
     fscanf(infractionFile, "%*[^\n]\n");
+    int flag = 1;
     while (fscanf(infractionFile, "%d;%30[^\n]", &fine.infractionId, fine.infractionName ) == 2)
     {
-        infractionIdToName(ticket, fine.infractionId, fine.infractionName);
+        addInfraction(tickets, fine.infractionId, fine.infractionName, flag);
+        /*VALIDAR LO DEL FLAG*/
     }
     fclose(infractionFile);
     /*Lectura del file de infracciones*/
@@ -41,10 +44,10 @@ int main(int argc, char const *argv[])
         query1Read(tickets, fine.infractionId);
     }
     fclose(ticketFile);
-    q1List listaQ1 = arrToListQ1(ticket);
     /*Lectura del file de los tickets*/
 
     /*Resuelvo query1*/
+    q1List listaQ1 = arrToListQ1(tickets);
     FILE * query1CSV = fopen(argv[3], "w");
     if (!query1CSV) {
         perror("Error opening file for writing");
