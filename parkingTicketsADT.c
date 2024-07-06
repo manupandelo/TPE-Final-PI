@@ -16,6 +16,7 @@ typedef struct agencyNode{
     char issuingAgencyName[MAX_CHAR_ISSUING_AGENCY];
     size_t * infractionsArr;
     size_t arrSize;
+    size_t maxArrIndex;
     size_t maxInfractionAmm;
     char maxInfractionName[MAX_CHAR_INFRACTION_NAME];
     struct agencyNode * tail;
@@ -157,10 +158,62 @@ void listToQ1CSV(FILE * query1File, q1List first){
     recListToQ1CSV(query1File, first->tail);
 }
 
+
+
+/*CAMBIAR LOS STRCMP*/
+/*PONER LOS THROWERROR*/
+static void recQuery2Read(agencyList next, int infractionId, char issuingAgency[]){
+    if (next->tail == NULL ||  strcmp(next->issuingAgencyName, issuingAgency) > 0)
+    {
+        agencyList aux = malloc(sizeof(agencyNode));
+        if( aux == NULL || errno == ENOMEM)
+            return NULL;
+        strcpy(aux->issuingAgencyName, issuingAgency);
+        aux->infractionsArr = calloc(infractionId + 1, sizeof(int));
+        aux->tail = next->tail;
+        next->tail = aux;
+        aux->arrSize = infractionId + 1;
+        aux->infractionsArr[infractionId] += 1;
+        aux->maxArrIndex = infractionId;
+        return;
+    }
+    
+    if (strcmp(next->tail->issuingAgencyName, issuingAgency) == 0)
+    {
+        if (infractionId >= next->tail->arrSize)
+        {
+            int i = next->tail->arrSize;
+            if (infractionId + 1 > next->tail->arrSize + BLOQUE)
+            {
+                next->tail->arrSize = infractionId + 1;
+                next->tail->infractionsArr = realloc(next->tail->infractionsArr, next->tail->arrSize * sizeof(size_t));
+                if(next->tail->infractionsArr == NULL || errno == ENOMEM);
+                
+            }
+            else{
+                next->tail->arrSize = next->tail->arrSize + BLOQUE;
+                next->tail->infractionsArr = realloc(next->tail->infractionsArr, next->tail->arrSize * sizeof(size_t));
+                if(next->tail->infractionsArr == NULL || errno == ENOMEM);
+            }  
+            while(i < next->tail->arrSize){
+                next->tail->infractionsArr[i++] = 0;
+            }
+            next->tail->infractionsArr[infractionId] += 1;
+            next->tail->maxArrIndex = infractionId;
+            return;
+        }
+        next->tail->infractionsArr[infractionId] += 1;
+        if (next->tail->maxArrIndex < infractionId)
+        {
+            next->tail->maxArrIndex = infractionId;
+        }
+        return;
+    }
+    recQuery2Read(next->tail, infractionId, issuingAgency);
+}
+
 /* Funcion que busca la issuingAgnecy que corresponda por la lista sumar en el InfractionId que corresponda*/
 void query2Read(parkingTicketsADT q, int infractionId, char issuingAgency[]){
-
-    
     if (q->firstQ2 == NULL || strcmp(q->firstQ2->issuingAgencyName, issuingAgency) > 0)
     {
         agencyList aux = malloc(sizeof(agencyNode));
@@ -169,22 +222,45 @@ void query2Read(parkingTicketsADT q, int infractionId, char issuingAgency[]){
         strcpy(aux->issuingAgencyName, issuingAgency);
         aux->infractionsArr = calloc(infractionId + 1, sizeof(int));
         aux->tail = q->firstQ2;
-        aux->arrSize = infractionId;
+        aux->arrSize = infractionId + 1;
         q->firstQ2 = aux;
         aux->infractionsArr[infractionId] += 1;
     }
 
     if (strcmp(q->firstQ2->issuingAgencyName, issuingAgency) == 0)
     {
-        if (q->firstQ2->arrSize < infractionId)
+        if (q->firstQ2->arrSize <= infractionId)
         {
-        /* REALLOC POR BLOQUES A INFRACTIONSARR */
-        /* FUNCION QUE SETEE TODOS LOS LUGARES NUEVOS DEL ARREGLO EN 0 */
+            int i = q->firstQ2->arrSize;
+            if (infractionId + 1 > q->firstQ2->arrSize + BLOQUE)
+            {
+                q->firstQ2->arrSize = infractionId + 1;
+                q->firstQ2->infractionsArr = realloc(q->firstQ2->infractionsArr, q->firstQ2->arrSize * sizeof(size_t));
+                if(q->firstQ2->infractionsArr == NULL || errno == ENOMEM);
+                
+            }
+            else{
+                q->firstQ2->arrSize = q->firstQ2->arrSize + BLOQUE;
+                q->firstQ2->infractionsArr = realloc(q->firstQ2->infractionsArr, q->firstQ2->arrSize * sizeof(size_t));
+                if(q->firstQ2->infractionsArr == NULL || errno == ENOMEM);
+            }  
+            while(i < q->firstQ2->arrSize){
+                q->firstQ2->infractionsArr[i++] = 0;
+            }
+            q->firstQ2->infractionsArr[infractionId] += 1;
+            q->firstQ2->maxArrIndex = infractionId;
+            return;
         }
         q->firstQ2->infractionsArr[infractionId] += 1;
+        if (q->firstQ2->maxArrIndex < infractionId)
+        {
+            q->firstQ2->maxArrIndex = infractionId;
+        }
+        
     
     }
-    /* RECURSIVA QUE BUSQUE LA AGENCY */
+    recQuery2Read(q->firstQ2, infractionId, issuingAgency);
+    
     
 }
 
