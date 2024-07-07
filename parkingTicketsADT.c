@@ -286,7 +286,6 @@ void query2Read(parkingTicketsADT q, int infractionId, char issuingAgency[]){
             q->firstQ2->maxArrIndex = infractionId;
             return;
         }
-        
         q->firstQ2->infractionsArr[infractionId] += 1;
         if (q->firstQ2->maxArrIndex < infractionId)
         {
@@ -315,9 +314,6 @@ static agencyList query2ProcessingRec(agencyList l, infractionIdArr * arr, size_
         return NULL;
 
     int idxMayor;
-    /*Busco un index mayor valido (con nombre)*/
-    
-
     if (minIndex >= l->arrSize) {
         agencyList aux = l->tail;
         free(l->infractionsArr);
@@ -339,14 +335,16 @@ static agencyList query2ProcessingRec(agencyList l, infractionIdArr * arr, size_
     l->maxInfractionAmm = l->infractionsArr[idxMayor];
     strcpy(l->maxInfractionName, arr[idxMayor].infractionName);
     l->tail = query2ProcessingRec(l->tail, arr, minIndex);
+    return l;
     }
     
 }
 
 agencyList query2Processing(parkingTicketsADT q){
     size_t minIndex;
+    /*Busco un index minimo valido (con nombre)*/
     for (int i = 0; i <= q->infArraySize; i++){
-        if (q->infractionArr[i]->infractionName[0] != '\0'){
+        if (q->infractionArr[i].infractionName[0] != '\0'){
             minIndex = i;
             break;
         }
