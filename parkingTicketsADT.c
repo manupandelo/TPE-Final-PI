@@ -56,8 +56,8 @@ typedef struct parkingTicketsCDT
     /*QUERY 2*/
     
     /*QUERY 3*/
-    infractionIdPlateArr * arrQ3; /*Arreglo indexado por InfractionID adentro 
-                                    tiene lista de patentes ordenadas alfabeticamente*/
+    infractionIdPlateArr * arrQ3; //Arreglo indexado por InfractionID c lista de patentes ordenadas alfabeticamente
+    size_t arrQ3Size;                                
     /*QUERY 3*/
 
 }parkingTicketsCDT;
@@ -128,8 +128,7 @@ void query1Read(parkingTicketsADT q, int infractionId){
 
 
 void recArrToListQ1(q1List next, q1List l){
-    if (next->tail == NULL || next->tail->infractionsAmm < l->infractionsAmm || ((next->tail->infractionsAmm == l->infractionsAmm) && my_strcasecmp(l->infractionName, next->tail->infractionName) < 0))
-    {
+    if (next->tail == NULL || next->tail->infractionsAmm < l->infractionsAmm || ((next->tail->infractionsAmm == l->infractionsAmm) && my_strcasecmp(l->infractionName, next->tail->infractionName) < 0)){
         l->tail = next->tail;
         next->tail = l;
         return;
@@ -148,8 +147,7 @@ q1List arrToListQ1(parkingTicketsADT q){
             q1List aux = malloc(sizeof(q1Node));
             aux->infractionsAmm = q->infractionArr[i].cant;
             strcpy(aux->infractionName, q->infractionArr[i].infractionName);
-            if (first == NULL || first->infractionsAmm < aux->infractionsAmm || ((first->infractionsAmm == aux->infractionsAmm) && my_strcasecmp(aux->infractionName, first->infractionName) < 0))
-            {
+            if (first == NULL || first->infractionsAmm < aux->infractionsAmm || ((first->infractionsAmm == aux->infractionsAmm) && my_strcasecmp(aux->infractionName, first->infractionName) < 0)){
                 aux->tail = first;
                 first = aux;
             }else{
@@ -167,7 +165,6 @@ void listToQ1CSV(FILE * query1File, q1List first){
     if (first == NULL){
         return;  /*Por ahi que poner algun error, seria raro que este vacia la lista*/
     }
-
     fprintf(query1File, "%s;%d\n", first->infractionName, first->infractionsAmm);
 
     listToQ1CSV(query1File, first->tail);
@@ -306,8 +303,6 @@ void query2Read(parkingTicketsADT q, int infractionId, char issuingAgency[]){
         freeADT(q);
         throwError("Memory error");
     }
-
-    
 }
 
 
@@ -346,7 +341,7 @@ static agencyList query2ProcessingRec(agencyList l, infractionIdArr * arr, size_
     
 }
 
-agencyList query2Processing(parkingTicketsADT q){
+void query2Processing(parkingTicketsADT q){
     size_t minIndex;
     /*Busco un index minimo valido (con nombre)*/
     for (int i = 0; i <= q->infArraySize; i++){
@@ -370,12 +365,58 @@ void query2ToCSV(FILE * query2File, parkingTicketsADT q){
     if (q->firstQ2 == NULL){
         return;
     }
-    fprintf(query2File,"%s;%s;%zu\n",q->firstQ2->issuingAgencyName, q->firstQ2->maxInfractionName, q->firstQ2->maxInfractionAmm);
-    recQuery2ToCSV(query2File, q->firstQ2->tail);
+    recQuery2ToCSV(query2File, q->firstQ2);
+}
+
+static plateList recQuery3Read(plateList l, char * plate, int * flag){
+    if(l == NULL || my_strcasecmp(l->plate, plate) > 0){
+        plateList aux = malloc(sizeof(plateNode));
+        if(aux == NULL || errno == ENOMEM){
+            *flag = 0;
+            return NULL;
+        }
+        strcpy(aux->plate, plate);
+        aux->cant = 1;
+        aux->tail = l;
+        return aux;
+    } else if (my_strcasecmp(l->plate, plate) == 0){
+        l->cant += 1;
+        return l;
+    }
+    l->tail = recQuery3Read(l->tail, plate,flag);
+    return l;
 }
 
 void query3Read(parkingTicketsADT q, size_t infractionId, char plate[]){
-
+    if(infractionId + 1 > q->arrQ3Size){
+        int i = q->arrQ3Size;
+        if( infractionId + 1 > q->arrQ3Size + BLOQUE ){
+            q->arrQ3Size = infractionId + 1;
+            q->arrQ3 = realloc(q->arrQ3, q->arrQ3Size * sizeof(infractionIdPlateArr));
+            if(q->arrQ3 == NULL || errno == ENOMEM){
+                freeADT(q);
+                throwError("Memory error");
+            }
+        } else {
+            q->arrQ3Size += BLOQUE;            
+            q->arrQ3 = realloc(q->arrQ3, q->arrQ3Size * sizeof(infractionIdPlateArr));
+            if(q->arrQ3 == NULL || errno == ENOMEM){
+                freeADT(q);
+                throwError("Memory error");
+            }
+        }
+        while(i < q->arrQ3Size){
+            q->arrQ3[i].first = NULL;
+            q->arrQ3[i].maxInfractioAmm = 0;
+            q->arrQ3[i++].maxPlateName[0] = '\0';
+        }
+    }
+    int flag = 1;
+    q->arrQ3[infractionId].first = recQuery3Read(q->arrQ3[infractionId].first, plate, &flag);
+    if(flag == 0){
+        freeADT(q);
+        throwError("Memory error");
+    }
 }
 
 static void query3CSV(FILE * query3File, parkingTicketsADT q){
