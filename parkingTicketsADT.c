@@ -178,6 +178,12 @@ static void recQuery2Read(agencyList next, int infractionId, char issuingAgency[
         }
         strcpy(aux->issuingAgencyName, issuingAgency);
         aux->infractionsArr = calloc(infractionId + 1, sizeof(size_t));
+        if (aux->infractionsArr == NULL || errno == ENOMEM) {
+            *flag = 0;
+            free(aux);
+            return;
+        }
+
         aux->tail = next->tail;
         next->tail = aux;
         aux->arrSize = infractionId + 1;
@@ -200,8 +206,7 @@ static void recQuery2Read(agencyList next, int infractionId, char issuingAgency[
                     return;
                 }
                 
-            }
-            else{
+            }else{
                 next->tail->arrSize = next->tail->arrSize + BLOQUE;
                 next->tail->infractionsArr = realloc(next->tail->infractionsArr, next->tail->arrSize * sizeof(size_t));
                 if(next->tail->infractionsArr == NULL || errno == ENOMEM){
@@ -245,8 +250,9 @@ void query2Read(parkingTicketsADT q, int infractionId, char issuingAgency[]){
         }
         aux->tail = q->firstQ2;
         aux->arrSize = infractionId + 1;
-        q->firstQ2 = aux;
+        aux->maxArrIndex = infractionId;
         aux->infractionsArr[infractionId] += 1;
+        q->firstQ2 = aux;
         return;
     }
 
@@ -264,8 +270,7 @@ void query2Read(parkingTicketsADT q, int infractionId, char issuingAgency[]){
                     throwError("Memory error");
                 }
                 
-            }
-            else{
+            }else{
                 q->firstQ2->arrSize = q->firstQ2->arrSize + BLOQUE;
                 q->firstQ2->infractionsArr = realloc(q->firstQ2->infractionsArr, q->firstQ2->arrSize * sizeof(size_t));
                 if(q->firstQ2->infractionsArr == NULL || errno == ENOMEM){
@@ -281,6 +286,7 @@ void query2Read(parkingTicketsADT q, int infractionId, char issuingAgency[]){
             q->firstQ2->maxArrIndex = infractionId;
             return;
         }
+        
         q->firstQ2->infractionsArr[infractionId] += 1;
         if (q->firstQ2->maxArrIndex < infractionId)
         {
@@ -304,29 +310,23 @@ void query2Read(parkingTicketsADT q, int infractionId, char issuingAgency[]){
 y maxInfractionAmm.
 si empatan se define por el nombre, usar el arreglo del query 1 para esto*/
 
-static void query2ProcessingRec(agencyList l, infractionIdArr * arr){
+static agencyList query2ProcessingRec(agencyList l, infractionIdArr * arr, size_t minIndex){
     if(l==NULL)
-        return ;
+        return NULL;
 
-    int idxMayor = -1;
-
+    int idxMayor;
     /*Busco un index mayor valido (con nombre)*/
-    for (int i = 0; i <= l->maxArrIndex; i++){
-        if (arr[i].infractionName[0] != '\0'){
-            idxMayor = i;
-            break;
-        }
-        
-    }
+    
 
-    if (idxMayor == -1) {
+    if (minIndex >= l->arrSize) {
         agencyList aux = l->tail;
         free(l->infractionsArr);
         free(l);
-        query2ProcessingRec(aux, arr);
+        return query2ProcessingRec(aux, arr, minIndex);
     }else{
+        idxMayor = minIndex;
         for(int i = idxMayor + 1; i < l->maxArrIndex; i++ ){
-        if(arr[i].infractionName[0] != '\0'){
+        if(arr[i].infractionName[0] != '\0'  && l->infractionsArr[i] > 0){
                 if(l->infractionsArr[i] > l->infractionsArr[idxMayor]){
                     idxMayor = i;
                 } else if(l->infractionsArr[i] == l->infractionsArr[idxMayor]){
@@ -338,15 +338,20 @@ static void query2ProcessingRec(agencyList l, infractionIdArr * arr){
     }
     l->maxInfractionAmm = l->infractionsArr[idxMayor];
     strcpy(l->maxInfractionName, arr[idxMayor].infractionName);
-    query2ProcessingRec(l->tail, arr);
+    l->tail = query2ProcessingRec(l->tail, arr, minIndex);
     }
-        
-    
     
 }
 
-void query2Processing(parkingTicketsADT q){
-    query2ProcessingRec(q->firstQ2, q->infractionArr);
+agencyList query2Processing(parkingTicketsADT q){
+    size_t minIndex;
+    for (int i = 0; i <= q->infArraySize; i++){
+        if (q->infractionArr[i]->infractionName[0] != '\0'){
+            minIndex = i;
+            break;
+        }
+    }
+    q->firstQ2 = query2ProcessingRec(q->firstQ2, q->infractionArr, minIndex);
 }
 
 static void recQuery2ToCSV(FILE * query2File, agencyList l){
