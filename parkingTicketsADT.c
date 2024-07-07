@@ -159,12 +159,12 @@ void listToQ1CSV(FILE * query1File, q1List first){
 
     fprintf(query1File, "%s;%d\n", first->infractionName, first->infractionsAmm);
 
-    ListToQ1CSV(query1File, first->tail);
+    listToQ1CSV(query1File, first->tail);
 }
 
 
 static void recQuery2Read(agencyList next, int infractionId, char issuingAgency[], int * flag){
-    if (next->tail == NULL ||  my_strcasecmp(next->issuingAgencyName, issuingAgency) > 0)
+    if (next->tail == NULL ||  my_strcasecmp(next->tail->issuingAgencyName, issuingAgency) > 0)
     {
         agencyList aux = malloc(sizeof(agencyNode));
         if( aux == NULL || errno == ENOMEM){
@@ -172,7 +172,7 @@ static void recQuery2Read(agencyList next, int infractionId, char issuingAgency[
             return;
         }
         strcpy(aux->issuingAgencyName, issuingAgency);
-        aux->infractionsArr = calloc(infractionId + 1, sizeof(int));
+        aux->infractionsArr = calloc(infractionId + 1, sizeof(size_t));
         aux->tail = next->tail;
         next->tail = aux;
         aux->arrSize = infractionId + 1;
@@ -203,7 +203,8 @@ static void recQuery2Read(agencyList next, int infractionId, char issuingAgency[
                     *flag = 0;
                     return;
                 }
-            }  
+            }
+              
             while(i < next->tail->arrSize){
                 next->tail->infractionsArr[i++] = 0;
             }
@@ -218,7 +219,8 @@ static void recQuery2Read(agencyList next, int infractionId, char issuingAgency[
         }
         return;
     }
-    recQuery2Read(next->tail, infractionId, issuingAgency, flag);
+    recQuery2Read(next->tail, infractionId, issuingAgency,flag);
+    return;
 }
 
 /* Funcion que busca la issuingAgnecy que corresponda por la lista sumar en el InfractionId que corresponda*/
@@ -230,18 +232,17 @@ void query2Read(parkingTicketsADT q, int infractionId, char issuingAgency[]){
             freeADT(q);
             throwError("Memory error");
         }
-
         strcpy(aux->issuingAgencyName, issuingAgency);
-        aux->infractionsArr = calloc(infractionId + 1, sizeof(int));
+        aux->infractionsArr = calloc(infractionId + 1, sizeof(size_t));
         if (aux->infractionsArr == NULL || errno == ENOMEM){
             freeADT(q);
             throwError("Memory error");
         }
-        
         aux->tail = q->firstQ2;
         aux->arrSize = infractionId + 1;
         q->firstQ2 = aux;
         aux->infractionsArr[infractionId] += 1;
+        return;
     }
 
     if (my_strcasecmp(q->firstQ2->issuingAgencyName, issuingAgency) == 0)
@@ -266,7 +267,8 @@ void query2Read(parkingTicketsADT q, int infractionId, char issuingAgency[]){
                     freeADT(q);
                     throwError("Memory error");
                 }
-            }  
+            } 
+
             while(i < q->firstQ2->arrSize){
                 q->firstQ2->infractionsArr[i++] = 0;
             }
@@ -279,18 +281,17 @@ void query2Read(parkingTicketsADT q, int infractionId, char issuingAgency[]){
         {
             q->firstQ2->maxArrIndex = infractionId;
         }
-        
+        return;
     
     }
     int flag = 1;
     recQuery2Read(q->firstQ2, infractionId, issuingAgency, &flag);
-    
     if(flag == 0){
         freeADT(q);
         throwError("Memory error");
     }
 
-    realloc(q->firstQ2->infractionsArr, (q->firstQ2->maxArrIndex+1) * sizeof(size_t));
+    
 }
 
 
@@ -298,15 +299,24 @@ void query2Read(parkingTicketsADT q, int infractionId, char issuingAgency[]){
 y maxInfractionAmm.
 si empatan se define por el nombre, usar el arreglo del query 1 para esto*/
 
-static agencyList query2ProcessingRec(agencyList l, infractionIdArr * arr){
+static void query2ProcessingRec(agencyList l, infractionIdArr * arr){
     if(l==NULL)
-        return NULL;
+        return ;
 
-    l->tail = query2ProcessingRec(l->tail, arr);
-
-    size_t idxMayor = 0;
-    for(size_t i = 1; i < l->maxArrIndex; i++ ){
-        if(arr[i].infractionName != '\0'){
+    size_t idxMayor;
+    /*Busco un index mayor valido (con nombre)*/
+    for (size_t i = 0; i < l->maxArrIndex; i++)
+    {
+        if (arr[i].infractionName[0] != '\0')
+        {
+            idxMayor = i;
+            break;
+        }
+        
+    }
+    
+    for(size_t i = idxMayor + 1; i < l->maxArrIndex; i++ ){
+        if(arr[i].infractionName[0] != '\0'){
                 if(l->infractionsArr[i] > l->infractionsArr[idxMayor]){
                     idxMayor = i;
                 } else if(l->infractionsArr[i] == l->infractionsArr[idxMayor]){
@@ -316,22 +326,19 @@ static agencyList query2ProcessingRec(agencyList l, infractionIdArr * arr){
             }
         }
     }
-
     l->maxInfractionAmm = l->infractionsArr[idxMayor];
     strcpy(l->maxInfractionName, arr[idxMayor].infractionName);
-
-    return l;
+    query2ProcessingRec(l->tail, arr);
 }
 
 void query2Processing(parkingTicketsADT q){
-    q->firstQ2 = query2ProcessingRec(q->firstQ2,q->infArraySize);
+    query2ProcessingRec(q->firstQ2, q->infractionArr);
 }
 
-void recQuery2ToCSV(FILE * query2File, agencyList l){
+static void recQuery2ToCSV(FILE * query2File, agencyList l){
     if (l == NULL){
         return;
     }
-
     fprintf(query2File,"%s;%s;%d\n",l->issuingAgencyName, l->maxInfractionName, l->maxInfractionAmm);
     recQuery2ToCSV(query2File, l->tail);
 }
@@ -340,10 +347,11 @@ void query2ToCSV(FILE * query2File, parkingTicketsADT q){
     if (q->firstQ2 == NULL){
         return;
     }
-
-    fprintf(query2File,"%s;%s;%d\n", q->firstQ2->issuingAgencyName, q->firstQ2->maxInfractionName, q->firstQ2->maxInfractionAmm);
+    fprintf(query2File,"%s;%s;%d\n",q->firstQ2->issuingAgencyName, q->firstQ2->maxInfractionName, q->firstQ2->maxInfractionAmm);
     recQuery2ToCSV(query2File, q->firstQ2->tail);
 }
+
+
 
 void throwError(const char * msg){
     fprintf(stderr, "%s\n", msg);

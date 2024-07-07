@@ -57,6 +57,12 @@ q1List arrToListQ1(parkingTicketsADT q);
 
 void listToQ1CSV(FILE * query1File, q1List first);
 
+void query2Read(parkingTicketsADT q, int infractionId, char issuingAgency[]);
+
+void query2Processing(parkingTicketsADT q);
+
+void query2ToCSV(FILE * query2File, parkingTicketsADT q);
+
 void throwError(const char * msg);
 
 void freeADT(parkingTicketsADT q);

@@ -10,7 +10,7 @@
 
 int main(int argc, char const *argv[])
 {
-    if (argc != 4)
+    if (argc != 5)
         throwError("Error en la cantidad de argumentos");
     parkingTicketsADT tickets = newADT();
     if (tickets == NULL)
@@ -30,8 +30,9 @@ int main(int argc, char const *argv[])
         throwError("Error at opening tickets file");
     }
     fscanf(ticketFile, "%*[^\n]\n");
-    while (fscanf(ticketFile, "%10[^;];%*[^;];%d;%*[^;];%35[^\n]\n", fine.plate, &fine.infractionId, fine.infractionName) == 3){
+    while (fscanf(ticketFile, "%10[^;];%*[^;];%d;%*[^;];%35[^\n]\n", fine.plate, &fine.infractionId, fine.agency) == 3){
         query1Read(tickets, fine.infractionId);
+        query2Read(tickets, fine.infractionId, fine.agency);
     }
     fclose(ticketFile);
     /*Lectura del file de los tickets*/
@@ -45,6 +46,16 @@ int main(int argc, char const *argv[])
     }
     listToQ1CSV(query1CSV, listaQ1);
     /*Resuelvo query1*/
+
+    /*Resuelvo query2*/
+    FILE * query2CSV = fopen(argv[4],"w");
+    if (!query2CSV) {
+        perror("Error opening file for writing");
+        exit(EXIT_FAILURE);
+    }
+    query2Processing(tickets);
+    query2ToCSV(query2CSV, tickets);
+    /*Resuelvo query2*/
 }
 
 
@@ -57,7 +68,7 @@ void loadInfractions(parkingTicketsADT t, FILE * infractionFile){
     }
 
     fscanf(infractionFile, "%*[^\n]\n");
-
+    
     int infractionId;
     char infractionName[MAX_CHAR_INFRACTION_NAME];
 
