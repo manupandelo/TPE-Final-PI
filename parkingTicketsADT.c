@@ -308,18 +308,24 @@ static void query2ProcessingRec(agencyList l, infractionIdArr * arr){
     if(l==NULL)
         return ;
 
-    int idxMayor=0;
+    int idxMayor = -1;
 
     /*Busco un index mayor valido (con nombre)*/
-    for (int i = 0; i < l->maxArrIndex; i++){
+    for (int i = 0; i <= l->maxArrIndex; i++){
         if (arr[i].infractionName[0] != '\0'){
             idxMayor = i;
             break;
         }
         
     }
-    
-    for(int i = idxMayor + 1; i < l->maxArrIndex; i++ ){
+
+    if (idxMayor == -1) {
+        agencyList aux = l->tail;
+        free(l->infractionsArr);
+        free(l);
+        query2ProcessingRec(aux, arr);
+    }else{
+        for(int i = idxMayor + 1; i < l->maxArrIndex; i++ ){
         if(arr[i].infractionName[0] != '\0'){
                 if(l->infractionsArr[i] > l->infractionsArr[idxMayor]){
                     idxMayor = i;
@@ -333,6 +339,10 @@ static void query2ProcessingRec(agencyList l, infractionIdArr * arr){
     l->maxInfractionAmm = l->infractionsArr[idxMayor];
     strcpy(l->maxInfractionName, arr[idxMayor].infractionName);
     query2ProcessingRec(l->tail, arr);
+    }
+        
+    
+    
 }
 
 void query2Processing(parkingTicketsADT q){
