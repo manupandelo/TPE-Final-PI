@@ -7,14 +7,14 @@
 #include <string.h>
 #include "parkingTicketsADT.h"
 
+void loadInfractions(parkingTicketsADT t, FILE * infractionFile);
 
 int main(int argc, char const *argv[])
 {
     if (argc != 5)
         throwError("Error en la cantidad de argumentos");
     parkingTicketsADT tickets = newADT();
-    if (tickets == NULL)
-        throwError("Error al reservar memoria");
+
     ticket fine;
 
     /*Lectura del file de infracciones*/

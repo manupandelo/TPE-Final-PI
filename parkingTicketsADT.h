@@ -67,5 +67,4 @@ void throwError(const char * msg);
 
 void freeADT(parkingTicketsADT q);
 
-
 #endif

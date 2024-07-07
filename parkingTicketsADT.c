@@ -72,7 +72,12 @@ static int my_strcasecmp(const char *s1, const char *s2) {
 
 // Creo un nuevo ADT
 parkingTicketsADT newADT(void){
-    return calloc(1,sizeof(parkingTicketsCDT));
+    parkingTicketsADT new = calloc(1,sizeof(parkingTicketsCDT));
+    if(new == NULL || errno == ENOMEM){
+        throwError("Memory error");
+    }
+
+    return new;
 }
 
 void addInfraction(parkingTicketsADT q, int infractionId, char infractionName[]){
@@ -303,19 +308,18 @@ static void query2ProcessingRec(agencyList l, infractionIdArr * arr){
     if(l==NULL)
         return ;
 
-    size_t idxMayor;
+    int idxMayor=0;
+
     /*Busco un index mayor valido (con nombre)*/
-    for (size_t i = 0; i < l->maxArrIndex; i++)
-    {
-        if (arr[i].infractionName[0] != '\0')
-        {
+    for (int i = 0; i < l->maxArrIndex; i++){
+        if (arr[i].infractionName[0] != '\0'){
             idxMayor = i;
             break;
         }
         
     }
     
-    for(size_t i = idxMayor + 1; i < l->maxArrIndex; i++ ){
+    for(int i = idxMayor + 1; i < l->maxArrIndex; i++ ){
         if(arr[i].infractionName[0] != '\0'){
                 if(l->infractionsArr[i] > l->infractionsArr[idxMayor]){
                     idxMayor = i;
@@ -339,7 +343,7 @@ static void recQuery2ToCSV(FILE * query2File, agencyList l){
     if (l == NULL){
         return;
     }
-    fprintf(query2File,"%s;%s;%d\n",l->issuingAgencyName, l->maxInfractionName, l->maxInfractionAmm);
+    fprintf(query2File,"%s;%s;%zu\n",l->issuingAgencyName, l->maxInfractionName, l->maxInfractionAmm);
     recQuery2ToCSV(query2File, l->tail);
 }
 
@@ -347,7 +351,7 @@ void query2ToCSV(FILE * query2File, parkingTicketsADT q){
     if (q->firstQ2 == NULL){
         return;
     }
-    fprintf(query2File,"%s;%s;%d\n",q->firstQ2->issuingAgencyName, q->firstQ2->maxInfractionName, q->firstQ2->maxInfractionAmm);
+    fprintf(query2File,"%s;%s;%zu\n",q->firstQ2->issuingAgencyName, q->firstQ2->maxInfractionName, q->firstQ2->maxInfractionAmm);
     recQuery2ToCSV(query2File, q->firstQ2->tail);
 }
 
@@ -358,7 +362,7 @@ void throwError(const char * msg){
     exit(EXIT_FAILURE);
 }
 
-static void freeRec(q1List l){
+static void freeRec(agencyList l){
     if (l != NULL){
         freeRec(l->tail);
         free(l);
