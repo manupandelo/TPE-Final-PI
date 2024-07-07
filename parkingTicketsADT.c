@@ -35,9 +35,16 @@ typedef struct plateNode * plateList;
 
 typedef struct infraction{
     plateList first;
-    char maxPlateName[MAX_CHAR_PLATE];
-    size_t maxInfractioAmm;
 }infractionIdPlateArr;
+
+typedef struct q3Node{
+    char maxPlateName[MAX_CHAR_PLATE];
+    char infractionName[MAX_CHAR_INFRACTION_NAME];
+    size_t maxInfractionAmm;
+    struct q3Node * tail;
+}q3Node;
+
+typedef q3Node * q3List;
 
 typedef struct infractionIdArr{
     char infractionName[MAX_CHAR_INFRACTION_NAME];
@@ -56,8 +63,8 @@ typedef struct parkingTicketsCDT
     /*QUERY 2*/
     
     /*QUERY 3*/
-    infractionIdPlateArr * arrQ3; /*Arreglo indexado por InfractionID adentro 
-                                    tiene lista de patentes ordenadas alfabeticamente*/
+    infractionIdPlateArr * arrQ3; /*Arreglo indexado por InfractionID adentro */ 
+    size_t arrQ3Size;            /* tiene lista de patentes ordenadas alfabeticamente*/
     /*QUERY 3*/
 
 }parkingTicketsCDT;
@@ -378,15 +385,74 @@ void query3Read(parkingTicketsADT q, size_t infractionId, char plate[]){
 
 }
 
-static void query3CSV(FILE * query3File, parkingTicketsADT q){
+static void query3CSV(FILE * query3File, q3List l){
     
 };
 
 /*Pasa del arreglo a una lista ordenada alfabeticamente por INFRACCION
 con la patente mas popular ya definida*/
-void query3Processing(parkingTicketsADT q){
+void maxPlateFinder(plateList l, q3List aux){
+    if (l == NULL)
+    {
+        return;    
+    }
 
+    if (l->cant > aux->maxInfractionAmm)
+    {
+        aux->maxInfractionAmm = l->cant;
+        strcpy(aux->maxPlateName, l->plate);
+    }else if(l->cant == aux->maxInfractionAmm && (my_strcasecmp(l->plate, aux->maxPlateName) < 0)){
+        strcpy(aux->maxPlateName, l->plate);
+    }
+    maxPlateFinder(l->tail, aux);
+    
 }
+void recArrToListquery3(q3List next, q3List aux){    
+    if (next->tail == NULL || my_strcasecmp(next->tail->infractionName, aux->infractionName) > 0)
+    {
+        aux->tail = next->tail;
+        next->tail = aux;
+        return;
+    }
+    
+    recArrToListquery3(next->tail, aux);
+    
+}
+/*Retorna la lista armada con los datos como corresponde para pasarla a la funcion del CSV*/
+q3List arrToListquery3(parkingTicketsADT q){
+    q3List first = NULL;
+    for (size_t i = 0; i < q->arrQ3Size; i++)
+    {
+        if (q->infractionArr[i].infractionName[0] != '\0')
+        {
+            q3List aux = malloc(sizeof(q3Node));
+            /*VALIDARLO*/
+            aux->maxInfractionAmm = 0;
+            maxPlateFinder(q->arrQ3[i].first, aux);
+            if (aux->maxInfractionAmm == 0) /* No encontro patentes */
+            {
+                free(aux);
+            }else{
+                strcpy(aux->infractionName, q->infractionArr[i].infractionName);
+                if (first == NULL || my_strcasecmp(first->infractionName, q->infractionArr[i].infractionName) > 0)
+                {
+                    aux->tail = first;
+                    first = aux;
+                }else{
+                    recArrToListquery3(first, aux);   
+                }
+            }
+        }
+    }
+    return first;
+}
+
+void query3Processing(parkingTicketsADT q, FILE * query3file){
+    q3List l = arrToListquery3(q);
+    query3CSV(query3file, l);    
+}
+
+
 
 void throwError(const char * msg){
     fprintf(stderr, "%s\n", msg);
