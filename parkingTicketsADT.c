@@ -26,7 +26,7 @@ typedef struct agencyNode * agencyList;
 
 typedef struct plateNode{
     char plate[11];
-    size_t cant;
+    size_t cant; /*Cantidad de infracciones por patente*/
     struct plateNode * tail;
 }plateNode;
 
@@ -43,15 +43,18 @@ typedef struct infractionIdArr{
 
 typedef struct parkingTicketsCDT
 {
+    /*QUERY 1*/
     infractionIdArr * infractionArr; //Array de infracciones, despues cambio a una lista
     size_t infArraySize; //Tamaño del array de infracciones
+    /*QUERY 1*/
 
     /*QUERY 2*/
     agencyList firstQ2;
     /*QUERY 2*/
     
     /*QUERY 3*/
-    infractionIdPlateArr * arrQ3;
+    infractionIdPlateArr * arrQ3; /*Arreglo indexado por InfractionID adentro 
+                                    tiene lista de patentes ordenadas alfabeticamente*/
     /*QUERY 3*/
 
 }parkingTicketsCDT;
@@ -368,7 +371,19 @@ void query2ToCSV(FILE * query2File, parkingTicketsADT q){
     recQuery2ToCSV(query2File, q->firstQ2->tail);
 }
 
+void query3Read(parkingTicketsADT q, size_t infractionId, char plate[]){
 
+}
+
+static void query3CSV(FILE * query3File, parkingTicketsADT q){
+    
+};
+
+/*Pasa del arreglo a una lista ordenada alfabeticamente por INFRACCION
+con la patente mas popular ya definida*/
+void query3Processing(parkingTicketsADT q){
+
+}
 
 void throwError(const char * msg){
     fprintf(stderr, "%s\n", msg);
