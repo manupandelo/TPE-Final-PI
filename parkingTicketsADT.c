@@ -25,8 +25,9 @@ typedef struct agencyNode{
 typedef struct agencyNode * agencyList;
 
 typedef struct plateNode{
-    char plate[11];
+    char plate[MAX_CHAR_PLATE];
     size_t cant; /*Cantidad de infracciones por patente*/
+
     struct plateNode * tail;
 }plateNode;
 
@@ -34,6 +35,8 @@ typedef struct plateNode * plateList;
 
 typedef struct infraction{
     plateList first;
+    char maxPlateName[MAX_CHAR_PLATE];
+    size_t maxInfractioAmm;
 }infractionIdPlateArr;
 
 typedef struct infractionIdArr{
