@@ -4,10 +4,10 @@ FLAGS = -Wall -pedantic -std=c99 -fsanitize=address -g
 all: CHI NYC
 
 CHI: parkingTicketsCHI.c parkingTicketsADT.c
-	$(COMPILER) $(FLAGS) -o parkingTicketsCHI.out $^
+	$(COMPILER) $(FLAGS) -o CHI.out $^
 
 NYC: parkingTicketsNYC.c parkingTicketsADT.c
-	$(COMPILER) $(FLAGS) -o parkingTicketsNYC.out $^
+	$(COMPILER) $(FLAGS) -o NYC.out $^
 
 clean:
 	rm -f parkingTicketsCHI.out parkingTicketsNYC.out
