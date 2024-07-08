@@ -385,6 +385,12 @@ static plateList recQuery3Read(plateList l, char * plate, int * flag){
 }
 
 void query3Read(parkingTicketsADT q, size_t infractionId, char plate[]){
+    /*No hace nada si la infraccion no tiene nombre*/
+    if (q->infractionArr[infractionId].infractionName[0] == '\0')
+    {
+        return;
+    }
+    
     if(infractionId + 1 > q->arrQ3Size){
         int i = q->arrQ3Size;
         if( infractionId + 1 > q->arrQ3Size + BLOQUE ){
@@ -402,6 +408,7 @@ void query3Read(parkingTicketsADT q, size_t infractionId, char plate[]){
                 throwError("Memory error");
             }
         }
+
         while(i < q->arrQ3Size){
             q->arrQ3[i].first = NULL;
             i++;
