@@ -1,3 +1,4 @@
-.csv
-.out
-.dSYM
+*.csv
+*.out
+*.dSYM
+.DS_Store
