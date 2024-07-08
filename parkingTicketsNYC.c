@@ -36,28 +36,33 @@ int main(int argc, char const *argv[])
     /*Resuelvo query1*/
     FILE * query1CSV = fopen(argv[3],"w");
     if (!query1CSV) {
-        perror("Error opening file for writing");
-        exit(EXIT_FAILURE);
+        freeADT(tickets);
+        throwError("Error opening file for writing");
     }
     query1(query1CSV, tickets);
+    fclose(query1CSV);
     /*Resuelvo query1*/
 
-    /*Resuelvo query2
+    /*Resuelvo query2*/
     FILE * query2CSV = fopen(argv[4],"w");
-    if (!query2CSV) {
-        perror("Error opening file for writing");
-        exit(EXIT_FAILURE);
+    if (query2CSV == NULL) {
+
+        freeADT(tickets);
+        throwError("Error opening file for writing");
     }
     query2(query2CSV, tickets);
-    Resuelvo query2*/
+    fclose(query2CSV);
+    /*Resuelvo query2*/
+
 
     /*Resuelvo query3*/
     FILE * query3CSV = fopen(argv[5],"w");
     if (!query3CSV) {
-        perror("Error opening file for writing");
-        exit(EXIT_FAILURE);
+        freeADT(tickets);
+        throwError("Error opening file for writing");
     }
     query3(query3CSV, tickets);
+    fclose(query3CSV);
     /*Resuelvo query3*/
 
     freeADT(tickets);
@@ -95,7 +100,7 @@ void loadTickets(parkingTicketsADT t, FILE * ticketFile){
     fscanf(ticketFile, "%*[^\n]\n");
     while (fscanf(ticketFile, "%10[^;];%*[^;];%d;%*[^;];%35[^\n]\n", fine.plate, &fine.infractionId, fine.agency) == 3){
         query1Read(t, fine.infractionId);
-        //query2Read(t, fine.infractionId, fine.agency);
+        query2Read(t, fine.infractionId, fine.agency);
         query3Read(t, fine.infractionId, fine.plate);
     }
 }
