@@ -13,11 +13,9 @@ void loadTickets(parkingTicketsADT t, FILE * ticketFile);
 
 int main(int argc, char const *argv[])
 {
-    if (argc != 6)
+    if (argc != MAX_ARGS)
         throwError("Error en la cantidad de argumentos");
     parkingTicketsADT tickets = newADT();
-
-    ticket fine;
 
     /*Lectura del file de infracciones*/
     FILE * infractionFile = fopen(argv[2], "r");
@@ -31,35 +29,39 @@ int main(int argc, char const *argv[])
 
     /*Lectura del file de los tickets*/
     FILE * ticketFile = fopen(argv[1], "r");
-    if (!ticketFile) {
-        perror("Error opening file for writing");
-        exit(EXIT_FAILURE);
-    }
     loadTickets(tickets, ticketFile);
     fclose(ticketFile);
     /*Lectura del file de los tickets*/
 
     /*Resuelvo query1*/
-    q1List listaQ1 = arrToListQ1(tickets);
-    FILE * query1CSV = fopen(argv[3], "w");
+    FILE * query1CSV = fopen(argv[3],"w");
     if (!query1CSV) {
         perror("Error opening file for writing");
         exit(EXIT_FAILURE);
     }
-    listToQ1CSV(query1CSV, listaQ1);
+    query1(query1CSV, tickets);
     /*Resuelvo query1*/
 
-    /*Resuelvo query2*/
+    /*Resuelvo query2
     FILE * query2CSV = fopen(argv[4],"w");
     if (!query2CSV) {
         perror("Error opening file for writing");
         exit(EXIT_FAILURE);
     }
-    query2Processing(tickets);
-    query2ToCSV(query2CSV, tickets);
-    /*Resuelvo query2*/
+    query2(query2CSV, tickets);
+    Resuelvo query2*/
 
-    
+    /*Resuelvo query3*/
+    FILE * query3CSV = fopen(argv[5],"w");
+    if (!query3CSV) {
+        perror("Error opening file for writing");
+        exit(EXIT_FAILURE);
+    }
+    query3(query3CSV, tickets);
+    /*Resuelvo query3*/
+
+    freeADT(tickets);
+    return 0;
 }
 
 
@@ -93,7 +95,7 @@ void loadTickets(parkingTicketsADT t, FILE * ticketFile){
     fscanf(ticketFile, "%*[^\n]\n");
     while (fscanf(ticketFile, "%10[^;];%*[^;];%d;%*[^;];%35[^\n]\n", fine.plate, &fine.infractionId, fine.agency) == 3){
         query1Read(t, fine.infractionId);
-        query2Read(t, fine.infractionId, fine.agency);
+        //query2Read(t, fine.infractionId, fine.agency);
         query3Read(t, fine.infractionId, fine.plate);
     }
 }

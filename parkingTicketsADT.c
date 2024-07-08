@@ -8,22 +8,6 @@
 #include <errno.h>
 #include "parkingTicketsADT.h"
 
-/*Lista ordenada alfabeticamente por nombre de agencia
-con arreglo indexado por infractionId.
-Tambien contiene el maximo infraction ammount
-y el nombre de dicha infraccion*/
-typedef struct agencyNode{
-    char issuingAgencyName[MAX_CHAR_ISSUING_AGENCY];
-    size_t * infractionsArr;
-    size_t arrSize;
-    size_t maxArrIndex;
-    size_t maxInfractionAmm;
-    char maxInfractionName[MAX_CHAR_INFRACTION_NAME];
-    struct agencyNode * tail;
-}agencyNode;
-
-typedef struct agencyNode * agencyList;
-
 typedef struct plateNode{
     char plate[MAX_CHAR_PLATE];
     size_t cant; /*Cantidad de infracciones por patente*/
@@ -36,15 +20,6 @@ typedef struct plateNode * plateList;
 typedef struct infraction{
     plateList first;
 }infractionIdPlateArr;
-
-typedef struct q3Node{
-    char maxPlateName[MAX_CHAR_PLATE];
-    char infractionName[MAX_CHAR_INFRACTION_NAME];
-    size_t maxInfractionAmm;
-    struct q3Node * tail;
-}q3Node;
-
-typedef q3Node * q3List;
 
 typedef struct infractionIdArr{
     char infractionName[MAX_CHAR_INFRACTION_NAME];
@@ -180,6 +155,10 @@ void listToQ1CSV(FILE * query1File, q1List first){
     listToQ1CSV(query1File, first->tail);
 }
 
+void query1(FILE * query1File, parkingTicketsADT q){
+    q1List listaQ1 = arrToListQ1(q);
+    listToQ1CSV(query1File, listaQ1);
+}
 
 static void recQuery2Read(agencyList next, int infractionId, char issuingAgency[], int * flag){
     if (next->tail == NULL ||  my_strcasecmp(next->tail->issuingAgencyName, issuingAgency) > 0)
@@ -353,8 +332,8 @@ static agencyList query2ProcessingRec(agencyList l, infractionIdArr * arr, size_
     
 }
 
-agencyList query2Processing(parkingTicketsADT q){
-    size_t minIndex;
+void query2Processing(parkingTicketsADT q){
+    size_t minIndex=-1;
     /*Busco un index minimo valido (con nombre)*/
     for (int i = 0; i <= q->infArraySize; i++){
         if (q->infractionArr[i].infractionName[0] != '\0'){
@@ -362,23 +341,24 @@ agencyList query2Processing(parkingTicketsADT q){
             break;
         }
     }
+    if (minIndex == -1){
+        return; // No encontro ningun nombre de infraccion y habria q pensar q hacer
+    }
     q->firstQ2 = query2ProcessingRec(q->firstQ2, q->infractionArr, minIndex);
 }
 
-static void recQuery2ToCSV(FILE * query2File, agencyList l){
+void query2ToCSV(FILE * query2File, agencyList l){
     if (l == NULL){
         return;
     }
     fprintf(query2File,"%s;%s;%zu\n",l->issuingAgencyName, l->maxInfractionName, l->maxInfractionAmm);
-    recQuery2ToCSV(query2File, l->tail);
+    query2ToCSV(query2File, l->tail);
 }
 
-void query2ToCSV(FILE * query2File, parkingTicketsADT q){
-    if (q->firstQ2 == NULL){
-        return;
-    }
-    fprintf(query2File,"%s;%s;%zu\n",q->firstQ2->issuingAgencyName, q->firstQ2->maxInfractionName, q->firstQ2->maxInfractionAmm);
-    recQuery2ToCSV(query2File, q->firstQ2->tail);
+
+void query2(FILE * query2File, parkingTicketsADT q){
+    query2Processing(q);
+    query2ToCSV(query2File, q->firstQ2);
 }
 
 static plateList recQuery3Read(plateList l, char * plate, int * flag){
@@ -437,7 +417,7 @@ static void query3CSV(FILE * query3File, q3List l){
     }
     fprintf(query3File,"%s;%s;%zu\n",l->infractionName, l->maxPlateName, l->maxInfractionAmm);
     query3CSV(query3File, l->tail);
-};
+}
 
 /*Pasa del arreglo a una lista ordenada alfabeticamente por INFRACCION
 con la patente mas popular ya definida*/
@@ -446,16 +426,15 @@ void maxPlateFinder(plateList l, q3List aux){
         return;    
     }
 
-    if (l->cant > aux->maxInfractionAmm)
-    {
+    if (l->cant > aux->maxInfractionAmm){
         aux->maxInfractionAmm = l->cant;
         strcpy(aux->maxPlateName, l->plate);
     }else if(l->cant == aux->maxInfractionAmm && (my_strcasecmp(l->plate, aux->maxPlateName) < 0)){
         strcpy(aux->maxPlateName, l->plate);
     }
-    maxPlateFinder(l->tail, aux);
-    
+    maxPlateFinder(l->tail, aux);    
 }
+
 void recArrToListquery3(q3List next, q3List aux){    
     if (next->tail == NULL || my_strcasecmp(next->tail->infractionName, aux->infractionName) > 0)
     {
@@ -496,7 +475,7 @@ q3List arrToListquery3(parkingTicketsADT q){
     return first;
 }
 
-void query3Processing(parkingTicketsADT q, FILE * query3file){
+void query3(FILE * query3file, parkingTicketsADT q){
     q3List l = arrToListquery3(q);
     query3CSV(query3file, l);    
 }
