@@ -362,26 +362,24 @@ void query2(FILE * query2File, parkingTicketsADT q){
     query2ToCSV(query2File, q->firstQ2);
 }
 
-static plateList recQuery3Read(plateList l, char * plate, int * flag){
-    if(l == NULL || my_strcasecmp(l->plate, plate) > 0){
+void recQuery3Read(plateList l, char * plate, int * flag){
+    if(l->tail == NULL || my_strcasecmp(l->tail->plate, plate) > 0){
         plateList aux = malloc(sizeof(plateNode));
         if(aux == NULL || errno == ENOMEM){
             *flag = 0;
-            return NULL;
+            return;
         }
         strcpy(aux->plate, plate);
         aux->cant = 1;
-        aux->tail = l;
-        return aux;
-    } else if (my_strcasecmp(l->plate, plate) == 0){
-        l->cant += 1;
-        return l;
+        aux->tail = l->tail;
+        l->tail = aux;
+        return ;
+    } else if (my_strcasecmp(l->tail->plate, plate) == 0){
+        l->tail->cant += 1;
+        return ;
     }
-    l->tail = recQuery3Read(l->tail, plate,flag);
-    if (l->tail == NULL && *flag == 0) {
-        return NULL; // Verifica si la recursión anterior falló debido a una falla en la memoria
-    }
-    return l;
+    recQuery3Read(l->tail, plate,flag);
+    return;
 }
 
 void query3Read(parkingTicketsADT q, size_t infractionId, char plate[]){
@@ -414,8 +412,27 @@ void query3Read(parkingTicketsADT q, size_t infractionId, char plate[]){
             i++;
         }
     }
+
+    if (q->arrQ3[infractionId].first == NULL || my_strcasecmp(q->arrQ3[infractionId].first->plate, plate))
+    {
+        plateList aux = malloc(sizeof(plateNode));
+        if(aux == NULL || errno == ENOMEM){
+            return;
+        }
+        strcpy(aux->plate, plate);
+        aux->cant = 1;
+        aux->tail = q->arrQ3[infractionId].first;
+        return;
+    }
+
+    if (my_strcasecmp(q->arrQ3[infractionId].first->plate, plate) == 0)
+    {
+        q->arrQ3[infractionId].first->cant += 1;
+        return;
+    }
+
     int flag = 1;
-    q->arrQ3[infractionId].first = recQuery3Read(q->arrQ3[infractionId].first, plate, &flag);
+    recQuery3Read(q->arrQ3[infractionId].first, plate, &flag);
     if(flag == 0){
         freeADT(q);
         throwError("Memory error");
@@ -509,8 +526,15 @@ void freeADT(parkingTicketsADT t){
     for(int i = 0; i<t->infArraySize; i++){
         free(t->infractionArr[i].infractionName);
     }
-    free(t->infractionArr);
-    free(t->arrQ3);
+    if (t->infractionArr != NULL)
+    {
+        free(t->infractionArr);
+    }
+    if (t->arrQ3 != NULL)
+    {
+        free(t->arrQ3);
+    }
+    
     freeRec(t->firstQ2);
     free(t);
 }

@@ -79,7 +79,7 @@ void loadInfractions(parkingTicketsADT t, FILE * infractionFile){
     }
 
     fscanf(infractionFile, "%*[^\n]\n");
-    
+
     int infractionId;
     char infractionName[MAX_CHAR_INFRACTION_NAME];
 
@@ -91,7 +91,7 @@ void loadInfractions(parkingTicketsADT t, FILE * infractionFile){
 //Funcion que recibe el archivo de tickets y guarda los datos de los tickets
 void loadTickets(parkingTicketsADT t, FILE * ticketFile){
     if(ticketFile == NULL){
-        freeADT(t);
+        
         throwError("Error at opening tickets file");
     }
 
