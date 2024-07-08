@@ -5,13 +5,13 @@
 #include <time.h>  
 #include <assert.h>
 #include <string.h>
+#include <strings.h>
 #include <errno.h>
 #include "parkingTicketsADT.h"
 
 typedef struct plateNode{
     char plate[MAX_CHAR_PLATE];
     size_t cant; /*Cantidad de infracciones por patente*/
-
     struct plateNode * tail;
 }plateNode;
 
@@ -45,6 +45,7 @@ typedef struct parkingTicketsCDT
 }parkingTicketsCDT;
 
 static int my_strcasecmp(const char *s1, const char *s2) {
+    return strcasecmp(s1, s2);
     while (*s1 && *s2) {
         int c1 = tolower((unsigned char)*s1);
         int c2 = tolower((unsigned char)*s2);
@@ -377,6 +378,9 @@ static plateList recQuery3Read(plateList l, char * plate, int * flag){
         return l;
     }
     l->tail = recQuery3Read(l->tail, plate,flag);
+    if (l->tail == NULL && *flag == 0) {
+        return NULL; // Verifica si la recursión anterior falló debido a una falla en la memoria
+    }
     return l;
 }
 
