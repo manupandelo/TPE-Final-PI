@@ -7,6 +7,13 @@
 #include <string.h>
 #include "parkingTicketsADT.h"
 
+typedef struct ticket{
+    char plate[MAX_CHAR_PLATE];
+    char agency[MAX_CHAR_ISSUING_AGENCY];
+    int infractionId;
+    char infractionName[MAX_CHAR_INFRACTION_NAME];
+}ticket;
+
 void loadInfractions(parkingTicketsADT t, FILE * infractionFile);
 
 void loadTickets(parkingTicketsADT t, FILE * ticketFile);
@@ -35,7 +42,7 @@ int main(int argc, char const *argv[])
 
     /*Resuelvo query1*/
     FILE * query1CSV = fopen(argv[3],"w");
-    if (!query1CSV) {
+    if (query1CSV == NULL) {
         freeADT(tickets);
         throwError("Error opening file for writing");
     }
@@ -56,7 +63,8 @@ int main(int argc, char const *argv[])
     
     /*Resuelvo query3*/
     FILE * query3CSV = fopen(argv[5],"w");
-    if (!query3CSV) {
+    if (query3CSV == NULL) {
+        freeADT(tickets);
         throwError("Error opening file for writing");
     } else {
         query3(query3CSV, tickets);
@@ -96,7 +104,7 @@ void loadTickets(parkingTicketsADT t, FILE * ticketFile){
 
     fscanf(ticketFile, "%*[^\n]\n");
     while (fscanf(ticketFile, "%*[^;];%[^;];%d;%[^;];%*d\n", fine.plate, &fine.infractionId, fine.agency) == 3){
-        query1Read(t, fine.infractionId);
+        sumInfractionByTicket(t, fine.infractionId);
         query2Read(t, fine.infractionId, fine.agency);
         query3Read(t, fine.infractionId, fine.plate); 
     }

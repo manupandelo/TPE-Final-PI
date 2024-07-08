@@ -39,13 +39,13 @@ Una vez esten compilados, desde la linea de comandos pueden ser ejecutados de la
 Para `ParkingTicketsNYC`:
 
 ```
-    ./parkingTicketsNYC.out <Path al archivo de multas> <Path al archivo de infracciones>
+    ./parkingTicketsNYC.out <Path al archivo de multas> <Path al archivo de infracciones> <3 Path distintos para donde almacenar las queries (.csv)>
 ```
 
 Para `ParkingTicketsCHI`:
 
 ```
-    ./parkingTicketsCHI.out <Path al archivo de multas> <Path al archivo de infracciones>
+    ./parkingTicketsCHI.out <Path al archivo de multas> <Path al archivo de infracciones> <3 Path distintos para donde almacenar las queries (.csv)>
 ```
 
 Finalmente si se desea limpiar los ejecutables, de la siguiente manera:
