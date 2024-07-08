@@ -94,9 +94,7 @@ void loadTickets(parkingTicketsADT t, FILE * ticketFile){
         
         throwError("Error at opening tickets file");
     }
-
     ticket fine;
-
     fscanf(ticketFile, "%*[^\n]\n");
     while (fscanf(ticketFile, "%10[^;];%*[^;];%d;%*[^;];%35[^\n]\n", fine.plate, &fine.infractionId, fine.agency) == 3){
         query1Read(t, fine.infractionId);

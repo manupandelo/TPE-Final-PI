@@ -373,12 +373,15 @@ void recQuery3Read(plateList l, char * plate, int * flag){
         aux->cant = 1;
         aux->tail = l->tail;
         l->tail = aux;
-        return ;
-    } else if (my_strcasecmp(l->tail->plate, plate) == 0){
-        l->tail->cant += 1;
-        return ;
+        return;
     }
-    recQuery3Read(l->tail, plate,flag);
+    
+    if (my_strcasecmp(l->tail->plate, plate) == 0){
+        l->tail->cant += 1;
+        return;
+    }
+
+    recQuery3Read(l->tail, plate, flag);
     return;
 }
 
@@ -389,7 +392,7 @@ void query3Read(parkingTicketsADT q, size_t infractionId, char plate[]){
         return;
     }
     
-    if(infractionId + 1 > q->arrQ3Size){
+    if(infractionId >= q->arrQ3Size){
         int i = q->arrQ3Size;
         if( infractionId + 1 > q->arrQ3Size + BLOQUE ){
             q->arrQ3Size = infractionId + 1;
@@ -413,7 +416,7 @@ void query3Read(parkingTicketsADT q, size_t infractionId, char plate[]){
         }
     }
 
-    if (q->arrQ3[infractionId].first == NULL || my_strcasecmp(q->arrQ3[infractionId].first->plate, plate))
+    if (q->arrQ3[infractionId].first == NULL || my_strcasecmp(q->arrQ3[infractionId].first->plate, plate) > 0)
     {
         plateList aux = malloc(sizeof(plateNode));
         if(aux == NULL || errno == ENOMEM){
@@ -422,6 +425,7 @@ void query3Read(parkingTicketsADT q, size_t infractionId, char plate[]){
         strcpy(aux->plate, plate);
         aux->cant = 1;
         aux->tail = q->arrQ3[infractionId].first;
+        q->arrQ3[infractionId].first = aux;
         return;
     }
 
@@ -523,6 +527,7 @@ static void freeRec(agencyList l){
 }
 
 void freeADT(parkingTicketsADT t){
+    
     for(int i = 0; i<t->infArraySize; i++){
         free(t->infractionArr[i].infractionName);
     }
@@ -536,7 +541,8 @@ void freeADT(parkingTicketsADT t){
     }
     
     freeRec(t->firstQ2);
-    free(t);
+    free(t); 
+    return;
 }
 
 
