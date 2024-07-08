@@ -441,27 +441,34 @@ void recArrToListQuery3(q3List next, q3List aux){
 };
 
 /*Busca por el arbol de patentes*/
-void maxPlateFinder(plateList first, q3List aux){
-    
+void maxPlateFinder(plateList first, q3List aux, size_t * max){
+    if (first == NULL){
+        return;
+    }
+    maxPlateFinder(first->left, aux, max);
+    if (first->cant > *max){
+        *max = first->cant;
+        strcpy(aux->maxPlateName, first->plate);
+    } else if( first->cant == *max && my_strcasecmp(first->plate, aux->maxPlateName) < 0){
+        strcpy(aux->maxPlateName, first->plate);
+    }
+    maxPlateFinder(first->right, aux, max);
 }
 
 /*Retorna la lista armada con los datos como corresponde para pasarla a la funcion del CSV*/
 q3List arrToListQuery3(parkingTicketsADT q){
     q3List first = NULL;
     for (size_t i = 0; i < q->arrQ3Size; i++){
-        if (q->infractionArr[i].infractionName[0] != '\0')
-        {
+        if (q->infractionArr[i].infractionName[0] != '\0'){
             q3List aux = malloc(sizeof(q3Node));
             if (aux == NULL || errno == ENOMEM){
                 freeADT(q);
                 throwError("Memory error");
             }
             aux->maxInfractionAmm = 0;
-            if (first == NULL || my_strcasecmp(first->infractionName, q->infractionArr[i].infractionName) > 0)
-            {
-                maxPlateFinder(q->arrQ3[i].first, aux);
-                if (aux->maxInfractionAmm == 0) /*No encontro patente*/
-                {
+            if (first == NULL || my_strcasecmp(first->infractionName, q->infractionArr[i].infractionName) < 0){
+                maxPlateFinder(q->arrQ3[i].first, aux, &aux->maxInfractionAmm);
+                if (aux->maxInfractionAmm == 0){ /*No encontro patente*/
                     free(aux);
                 }else{
                     aux->tail = first;
