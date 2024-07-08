@@ -13,7 +13,7 @@ void loadTickets(parkingTicketsADT t, FILE * ticketFile);
 
 int main(int argc, char const *argv[])
 {
-    if (argc != 5)
+    if (argc != 6)
         throwError("Error en la cantidad de argumentos");
     parkingTicketsADT tickets = newADT();
 
@@ -21,12 +21,20 @@ int main(int argc, char const *argv[])
 
     /*Lectura del file de infracciones*/
     FILE * infractionFile = fopen(argv[2], "r");
+    if (!infractionFile) {
+        perror("Error opening file for writing");
+        exit(EXIT_FAILURE);
+    }
     loadInfractions(tickets, infractionFile);
     fclose(infractionFile);
     /*Lectura del file de infracciones*/
 
     /*Lectura del file de los tickets*/
     FILE * ticketFile = fopen(argv[1], "r");
+    if (!ticketFile) {
+        perror("Error opening file for writing");
+        exit(EXIT_FAILURE);
+    }
     loadTickets(tickets, ticketFile);
     fclose(ticketFile);
     /*Lectura del file de los tickets*/
@@ -50,6 +58,8 @@ int main(int argc, char const *argv[])
     query2Processing(tickets);
     query2ToCSV(query2CSV, tickets);
     /*Resuelvo query2*/
+
+    
 }
 
 
