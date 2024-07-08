@@ -59,9 +59,15 @@ void listToQ1CSV(FILE * query1File, q1List first);
 
 void query2Read(parkingTicketsADT q, int infractionId, char issuingAgency[]);
 
-void query2Processing(parkingTicketsADT q);
+agencyList query2Processing(parkingTicketsADT q);
 
 void query2ToCSV(FILE * query2File, parkingTicketsADT q);
+
+void query3Read(parkingTicketsADT q, size_t infractionId, char plate[]);
+
+void query3Processing(parkingTicketsADT q, FILE * query3file);
+
+void query3ToCSV(FILE * query3File, q3List l);
 
 void throwError(const char * msg);
 

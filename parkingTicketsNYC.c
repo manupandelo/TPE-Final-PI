@@ -9,6 +9,8 @@
 
 void loadInfractions(parkingTicketsADT t, FILE * infractionFile);
 
+void loadTickets(parkingTicketsADT t, FILE * ticketFile);
+
 int main(int argc, char const *argv[])
 {
     if (argc != 5)
@@ -25,15 +27,7 @@ int main(int argc, char const *argv[])
 
     /*Lectura del file de los tickets*/
     FILE * ticketFile = fopen(argv[1], "r");
-    if (ticketFile == NULL) {
-        freeADT(tickets);
-        throwError("Error at opening tickets file");
-    }
-    fscanf(ticketFile, "%*[^\n]\n");
-    while (fscanf(ticketFile, "%10[^;];%*[^;];%d;%*[^;];%35[^\n]\n", fine.plate, &fine.infractionId, fine.agency) == 3){
-        query1Read(tickets, fine.infractionId);
-        query2Read(tickets, fine.infractionId, fine.agency);
-    }
+    loadTickets(tickets, ticketFile);
     fclose(ticketFile);
     /*Lectura del file de los tickets*/
 
@@ -74,5 +68,22 @@ void loadInfractions(parkingTicketsADT t, FILE * infractionFile){
 
     while (fscanf(infractionFile, "%d;%30[^\n]\n", &infractionId, infractionName) == 2){
         addInfraction(t, infractionId, infractionName);
+    }
+}
+
+//Funcion que recibe el archivo de tickets y guarda los datos de los tickets
+void loadTickets(parkingTicketsADT t, FILE * ticketFile){
+    if(ticketFile == NULL){
+        freeADT(t);
+        throwError("Error at opening tickets file");
+    }
+
+    ticket fine;
+
+    fscanf(ticketFile, "%*[^\n]\n");
+    while (fscanf(ticketFile, "%10[^;];%*[^;];%d;%*[^;];%35[^\n]\n", fine.plate, &fine.infractionId, fine.agency) == 3){
+        query1Read(t, fine.infractionId);
+        query2Read(t, fine.infractionId, fine.agency);
+        query3Read(t, fine.infractionId, fine.plate);
     }
 }

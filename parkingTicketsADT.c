@@ -381,19 +381,68 @@ void query2ToCSV(FILE * query2File, parkingTicketsADT q){
     recQuery2ToCSV(query2File, q->firstQ2->tail);
 }
 
-void query3Read(parkingTicketsADT q, size_t infractionId, char plate[]){
+static plateList recQuery3Read(plateList l, char * plate, int * flag){
+    if(l == NULL || my_strcasecmp(l->plate, plate) > 0){
+        plateList aux = malloc(sizeof(plateNode));
+        if(aux == NULL || errno == ENOMEM){
+            *flag = 0;
+            return NULL;
+        }
+        strcpy(aux->plate, plate);
+        aux->cant = 1;
+        aux->tail = l;
+        return aux;
+    } else if (my_strcasecmp(l->plate, plate) == 0){
+        l->cant += 1;
+        return l;
+    }
+    l->tail = recQuery3Read(l->tail, plate,flag);
+    return l;
+}
 
+void query3Read(parkingTicketsADT q, size_t infractionId, char plate[]){
+    if(infractionId + 1 > q->arrQ3Size){
+        int i = q->arrQ3Size;
+        if( infractionId + 1 > q->arrQ3Size + BLOQUE ){
+            q->arrQ3Size = infractionId + 1;
+            q->arrQ3 = realloc(q->arrQ3, q->arrQ3Size * sizeof(infractionIdPlateArr));
+            if(q->arrQ3 == NULL || errno == ENOMEM){
+                freeADT(q);
+                throwError("Memory error");
+            }
+        } else {
+            q->arrQ3Size += BLOQUE;            
+            q->arrQ3 = realloc(q->arrQ3, q->arrQ3Size * sizeof(infractionIdPlateArr));
+            if(q->arrQ3 == NULL || errno == ENOMEM){
+                freeADT(q);
+                throwError("Memory error");
+            }
+        }
+        while(i < q->arrQ3Size){
+            q->arrQ3[i].first = NULL;
+            i++;
+        }
+    }
+    int flag = 1;
+    q->arrQ3[infractionId].first = recQuery3Read(q->arrQ3[infractionId].first, plate, &flag);
+    if(flag == 0){
+        freeADT(q);
+        throwError("Memory error");
+    }
 }
 
 static void query3CSV(FILE * query3File, q3List l){
-    
+    if (l == NULL){
+        return;
+    }
+    fprintf(query3File,"%s;%s;%zu\n",l->infractionName, l->maxPlateName, l->maxInfractionAmm);
+    query3CSV(query3File, l->tail);
 };
 
 /*Pasa del arreglo a una lista ordenada alfabeticamente por INFRACCION
 con la patente mas popular ya definida*/
 void maxPlateFinder(plateList l, q3List aux){
-    if (l == NULL)
-    {
+    if (l == NULL){
         return;    
     }
 
