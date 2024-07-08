@@ -12,7 +12,8 @@
 typedef struct plateNode{
     char plate[MAX_CHAR_PLATE];
     size_t cant; /*Cantidad de infracciones por patente*/
-    struct plateNode * tail;
+    struct plateNode * left;
+    struct plateNode * right;
 }plateNode;
 
 typedef struct plateNode * plateList;
@@ -159,6 +160,7 @@ void listToQ1CSV(FILE * query1File, q1List first){
 void query1(FILE * query1File, parkingTicketsADT q){
     q1List listaQ1 = arrToListQ1(q);
     listToQ1CSV(query1File, listaQ1);
+    freeQ1(listaQ1);
 }
 
 static void recQuery2Read(agencyList next, int infractionId, char issuingAgency[], int * flag){
@@ -362,32 +364,35 @@ void query2(FILE * query2File, parkingTicketsADT q){
     query2ToCSV(query2File, q->firstQ2);
 }
 
-static plateList recQuery3Read(plateList l, char * plate, int * flag){
-    if(l == NULL || my_strcasecmp(l->plate, plate) > 0){
+
+
+static plateList recQuery3Read(plateList root, char * plate, int * flag){
+    if (root == NULL){
         plateList aux = malloc(sizeof(plateNode));
-        if(aux == NULL || errno == ENOMEM){
+        if (aux == NULL || errno == ENOMEM){
             *flag = 0;
             return NULL;
         }
         strcpy(aux->plate, plate);
         aux->cant = 1;
-        aux->tail = l;
+        aux->left = NULL;
+        aux->right = NULL;
         return aux;
-    } else if (my_strcasecmp(l->plate, plate) == 0){
-        l->cant += 1;
-        return l;
     }
-    l->tail = recQuery3Read(l->tail, plate,flag);
-    if (l->tail == NULL && *flag == 0) {
-        return NULL; // Verifica si la recursión anterior falló debido a una falla en la memoria
+    int cmp = my_strcasecmp(plate, root->plate);
+    if (cmp == 0){
+        root->cant += 1;
+    } else if (cmp < 0){
+        root->left = recQuery3Read(root->left, plate, flag);
+    } else{
+        root->right = recQuery3Read(root->right, plate, flag);
     }
-    return l;
+    return root;
 }
 
 void query3Read(parkingTicketsADT q, size_t infractionId, char plate[]){
     /*No hace nada si la infraccion no tiene nombre*/
-    if (q->infractionArr[infractionId].infractionName[0] == '\0')
-    {
+    if (q->infractionArr[infractionId].infractionName[0] == '\0'){
         return;
     }
     
@@ -430,56 +435,31 @@ static void query3CSV(FILE * query3File, q3List l){
     query3CSV(query3File, l->tail);
 }
 
-/*Pasa del arreglo a una lista ordenada alfabeticamente por INFRACCION
-con la patente mas popular ya definida*/
-void maxPlateFinder(plateList l, q3List aux){
-    if (l == NULL){
-        return;    
-    }
-
-    if (l->cant > aux->maxInfractionAmm){
-        aux->maxInfractionAmm = l->cant;
-        strcpy(aux->maxPlateName, l->plate);
-    }else if(l->cant == aux->maxInfractionAmm && (my_strcasecmp(l->plate, aux->maxPlateName) < 0)){
-        strcpy(aux->maxPlateName, l->plate);
-    }
-    maxPlateFinder(l->tail, aux);    
-}
-
-void recArrToListquery3(q3List next, q3List aux){    
-    if (next->tail == NULL || my_strcasecmp(next->tail->infractionName, aux->infractionName) > 0)
-    {
-        aux->tail = next->tail;
-        next->tail = aux;
-        return;
-    }
-    
-    recArrToListquery3(next->tail, aux);
-    
-}
 /*Retorna la lista armada con los datos como corresponde para pasarla a la funcion del CSV*/
 q3List arrToListquery3(parkingTicketsADT q){
     q3List first = NULL;
-    for (size_t i = 0; i < q->arrQ3Size; i++)
-    {
+    for (size_t i = 0; i < q->arrQ3Size; i++){
         if (q->infractionArr[i].infractionName[0] != '\0')
         {
             q3List aux = malloc(sizeof(q3Node));
-            /*VALIDARLO*/
+            if (aux == NULL || errno == ENOMEM){
+                freeADT(q);
+                throwError("Memory error");
+            }
             aux->maxInfractionAmm = 0;
-            maxPlateFinder(q->arrQ3[i].first, aux);
-            if (aux->maxInfractionAmm == 0) /* No encontro patentes */
-            {
-                free(aux);
-            }else{
-                strcpy(aux->infractionName, q->infractionArr[i].infractionName);
-                if (first == NULL || my_strcasecmp(first->infractionName, q->infractionArr[i].infractionName) > 0)
-                {
-                    aux->tail = first;
-                    first = aux;
-                }else{
-                    recArrToListquery3(first, aux);   
+            aux->maxPlateName[0] = '\0';
+            strcpy(aux->infractionName, q->infractionArr[i].infractionName);
+            aux->tail = first;
+            first = aux;
+            plateList l = q->arrQ3[i].first;
+            while (l != NULL){
+                if (l->cant > aux->maxInfractionAmm){
+                    aux->maxInfractionAmm = l->cant;
+                    strcpy(aux->maxPlateName, l->plate);
+                }else if(l->cant == aux->maxInfractionAmm && (my_strcasecmp(l->plate, aux->maxPlateName) < 0)){
+                    strcpy(aux->maxPlateName, l->plate);
                 }
+                l = l->right;
             }
         }
     }
@@ -488,10 +468,9 @@ q3List arrToListquery3(parkingTicketsADT q){
 
 void query3(FILE * query3file, parkingTicketsADT q){
     q3List l = arrToListquery3(q);
-    query3CSV(query3file, l);    
+    query3CSV(query3file, l);
+    freeQ3(l);    
 }
-
-
 
 void throwError(const char * msg){
     fprintf(stderr, "%s\n", msg);
@@ -505,13 +484,47 @@ static void freeRec(agencyList l){
     }
 }
 
-void freeADT(parkingTicketsADT t){
-    for(int i = 0; i<t->infArraySize; i++){
-        free(t->infractionArr[i].infractionName);
+void freeQ1(q1List l){
+    if (l != NULL){
+        freeQ1(l->tail);
+        free(l);
     }
-    free(t->infractionArr);
-    free(t->arrQ3);
+}
+
+void freeQ3(q3List l){
+    if (l != NULL){
+        freeQ3(l->tail);
+        free(l);
+    }
+}
+
+static void freePlateList(plateList l){
+    if (l != NULL){
+        freePlateList(l->left);
+        freePlateList(l->right);
+        free(l);
+    }
+}
+
+static void freeRecArr(infractionIdPlateArr * arr, size_t size){
+    for (size_t i = 0; i < size; i++){
+        freePlateList(arr[i].first);
+    }
+    free(arr);
+}
+
+static void freeArr(infractionIdArr * arr, size_t size){
+    for (size_t i = 0; i < size; i++){
+        if (arr[i].infractionName[0] != '\0')
+            free(arr[i].infractionName);
+    }
+    free(arr);
+} 
+
+void freeADT(parkingTicketsADT t){
+    freeArr(t->infractionArr, t->infArraySize);
     freeRec(t->firstQ2);
+    freeRecArr(t->arrQ3, t->arrQ3Size);
     free(t);
 }
 

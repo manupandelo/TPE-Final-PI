@@ -1,12 +1,12 @@
 COMPILER = gcc
-FLAGS = -Wall -pedantic -std=c99 -fsanitize=adress -g
+FLAGS = -Wall -pedantic -std=c99 -fsanitize=address -g
 
 all: parkingTicketsCHI parkingTicketsNYC
 
-parkingTicketsCHI: parkingTicketsCHI.c .parkingTicketsADT.c
+parkingTicketsCHI: parkingTicketsCHI.c parkingTicketsADT.c
 	$(COMPILER) $(FLAGS) -o parkingTicketsCHI.out $^
 
-parkingTicketsNYC: parkingTicketsNYC.c .parkingTicketsADT.c
+parkingTicketsNYC: parkingTicketsNYC.c parkingTicketsADT.c
 	$(COMPILER) $(FLAGS) -o parkingTicketsNYC.out $^
 
 clean:

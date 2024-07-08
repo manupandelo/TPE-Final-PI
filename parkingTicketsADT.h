@@ -102,6 +102,10 @@ void query3ToCSV(FILE * query3File, q3List l);
 
 void throwError(const char * msg);
 
+void freeQ1(q1List l);
+
+void freeQ3(q3List l);
+
 void freeADT(parkingTicketsADT q);
 
 #endif

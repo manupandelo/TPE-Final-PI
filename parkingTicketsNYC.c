@@ -46,26 +46,23 @@ int main(int argc, char const *argv[])
     /*Resuelvo query2*/
     FILE * query2CSV = fopen(argv[4],"w");
     if (query2CSV == NULL) {
-
-        freeADT(tickets);
         throwError("Error opening file for writing");
+    } else {
+        query2(query2CSV, tickets);
+        fclose(query2CSV);
     }
-    query2(query2CSV, tickets);
-    fclose(query2CSV);
     /*Resuelvo query2*/
-
-
+    
+    
     /*Resuelvo query3*/
     FILE * query3CSV = fopen(argv[5],"w");
     if (!query3CSV) {
-        freeADT(tickets);
         throwError("Error opening file for writing");
+    } else {
+        query3(query3CSV, tickets);
+        fclose(query3CSV);
     }
-    query3(query3CSV, tickets);
-    fclose(query3CSV);
     /*Resuelvo query3*/
-
-    freeADT(tickets);
     return 0;
 }
 
