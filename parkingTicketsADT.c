@@ -540,6 +540,7 @@ static void freeArr(infractionIdArr * arr, size_t size){
 } 
 
 void freeADT(parkingTicketsADT t){
+    
     freeArr(t->infractionArr, t->infArraySize);
     freeRec(t->firstQ2);
     freeRecArr(t->arrQ3, t->arrQ3Size);
