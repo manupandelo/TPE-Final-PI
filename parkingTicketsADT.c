@@ -436,9 +436,13 @@ static void query3CSV(FILE * query3File, q3List l){
 }
 
 
-void recArrToListQuery3(q3List next, q3List aux){
-
-};
+void recArrToListQuery3(q3List *l, q3List aux){
+    while (*l != NULL && my_strcasecmp((*l)->infractionName, aux->infractionName) <= 0) {
+        l = &(*l)->tail;
+    }
+    aux->tail = *l;
+    *l = aux;
+}
 
 /*Busca por el arbol de patentes*/
 void maxPlateFinder(plateList first, q3List aux, size_t * max){
@@ -456,7 +460,7 @@ void maxPlateFinder(plateList first, q3List aux, size_t * max){
 }
 
 /*Retorna la lista armada con los datos como corresponde para pasarla a la funcion del CSV*/
-q3List arrToListQuery3(parkingTicketsADT q){
+q3List arrToListQ3(parkingTicketsADT q){
     q3List first = NULL;
     for (size_t i = 0; i < q->arrQ3Size; i++){
         if (q->infractionArr[i].infractionName[0] != '\0'){
@@ -466,26 +470,25 @@ q3List arrToListQuery3(parkingTicketsADT q){
                 throwError("Memory error");
             }
             aux->maxInfractionAmm = 0;
-            if (first == NULL || my_strcasecmp(first->infractionName, q->infractionArr[i].infractionName) < 0){
-                maxPlateFinder(q->arrQ3[i].first, aux, &aux->maxInfractionAmm);
-                if (aux->maxInfractionAmm == 0){ /*No encontro patente*/
-                    free(aux);
-                }else{
+            maxPlateFinder(q->arrQ3[i].first, aux, &aux->maxInfractionAmm);
+            strcpy(aux->infractionName, q->infractionArr[i].infractionName);
+            if (aux->maxInfractionAmm == 0){ /*No encontro patente*/
+                free(aux);
+            } else {
+                if (first == NULL || my_strcasecmp(first->infractionName, q->infractionArr[i].infractionName) > 0){
                     aux->tail = first;
-                    first = aux;
+                    first = aux;           
+                } else {
+                    recArrToListQuery3(&first->tail, aux); 
                 }
-                
-
             }
-            
-
         }
     }
     return first;
 }
 
 void query3(FILE * query3file, parkingTicketsADT q){
-    q3List l = arrToListquery3(q);
+    q3List l = arrToListQ3(q);
     query3CSV(query3file, l);
     freeQ3(l);    
 }

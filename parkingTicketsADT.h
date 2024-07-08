@@ -100,6 +100,8 @@ void query3(FILE * query3file, parkingTicketsADT q);
 
 void query3ToCSV(FILE * query3File, q3List l);
 
+q3List arrToListQ3(parkingTicketsADT q);
+
 void throwError(const char * msg);
 
 void freeQ1(q1List l);
