@@ -9,6 +9,38 @@
 #include <errno.h>
 #include "parkingTicketsADT.h"
 
+/* Estructuras de respuestas*/
+typedef struct q1Node{
+    char infractionName[MAX_CHAR_INFRACTION_NAME];
+    int infractionsAmm;
+    struct q1Node * tail;
+}q1Node;
+
+typedef q1Node * q1List;
+
+typedef struct q3Node{
+    char maxPlateName[MAX_CHAR_PLATE];
+    char infractionName[MAX_CHAR_INFRACTION_NAME];
+    size_t maxInfractionAmm;
+    struct q3Node * tail;
+}q3Node;
+
+typedef q3Node * q3List;
+/* Estructuras de respuestas */
+
+
+typedef struct agencyNode{
+    char issuingAgencyName[MAX_CHAR_ISSUING_AGENCY];
+    size_t * infractionsArr;
+    size_t arrSize;
+    size_t maxArrIndex;
+    size_t maxInfractionAmm;
+    char maxInfractionName[MAX_CHAR_INFRACTION_NAME];
+    struct agencyNode * tail;
+}agencyNode;
+
+typedef struct agencyNode * agencyList;
+
 typedef struct plateNode{
     char plate[MAX_CHAR_PLATE];
     size_t cant; /*Cantidad de infracciones por patente*/
@@ -543,6 +575,7 @@ static void freeArr(infractionIdArr * arr, size_t size){
 } 
 
 void freeADT(parkingTicketsADT t){
+    
     freeArr(t->infractionArr, t->infArraySize);
     freeRec(t->firstQ2);
     freeRecArr(t->arrQ3, t->arrQ3Size);
