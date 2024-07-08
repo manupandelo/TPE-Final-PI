@@ -7,6 +7,16 @@
 #include <string.h>
 #include "parkingTicketsADT.h"
 
+
+typedef struct ticket{
+    char plate[MAX_CHAR_PLATE];
+    char agency[MAX_CHAR_ISSUING_AGENCY];
+    int infractionId;
+    char infractionName[MAX_CHAR_INFRACTION_NAME];
+}ticket;
+
+
+
 void loadInfractions(parkingTicketsADT t, FILE * infractionFile);
 
 void loadTickets(parkingTicketsADT t, FILE * ticketFile);
