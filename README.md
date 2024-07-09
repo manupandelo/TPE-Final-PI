@@ -62,4 +62,4 @@ En la linea de comandos, eliminira los archivos generados durante la compilacion
 
 - Manuel Pandelo - 65748 - mpandelo@itba.edu.ar
 
-- Rocco Perrone - 65628 - rperrone@itba.edu,ar
+- Rocco Perrone - 65628 - rperrone@itba.edu.ar
