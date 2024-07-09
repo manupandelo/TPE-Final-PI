@@ -24,12 +24,12 @@ Esto va a generar dos ejecutables llamados `parkingTicketsNYC.out` y `parkingTic
 En caso de querer compilar solo uno, se realiza de la misma forma pero aclarando el de cual ciudad se quiere compilar:
 
 ```
-    make parkingTicketsNYC
+    make NYC
 ```
 o
 
 ```
-    make parkingTicketsCHI
+    make CHI
 ```
 
 Y esto va a generar solo un ejecutable correspondiente al programa de cada ciudad.
