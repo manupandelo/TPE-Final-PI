@@ -11,4 +11,4 @@ NYC: parkingTicketsNYC.c parkingTicketsADT.c
 	$(COMPILER) $(FLAGS) -DNY -o NYC.out $^
 
 clean:
-	rm -f parkingTicketsCHI.out parkingTicketsNYC.out
+	rm -f CHI.out NYC.out

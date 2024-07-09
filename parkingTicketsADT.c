@@ -9,6 +9,8 @@
 #include <errno.h>
 #include "parkingTicketsADT.h"
 
+
+
 /* Estructuras de respuestas*/
 typedef struct infractionNode{
     char infractionName[MAX_CHAR_INFRACTION_NAME];
@@ -183,140 +185,62 @@ void query1(FILE * query1File, parkingTicketsADT q){
     freeQ1(listaQ1);
 }
 
-static void recQuery2Read(agencyList next, int infractionId, char issuingAgency[], int * flag){
-    if (next->tail == NULL ||  my_strcasecmp(next->tail->issuingAgencyName, issuingAgency) > 0)
-    {
+static agencyList query2ReadRec(agencyList l , int infractionId, char * issuingAgency){
+    int cmp;
+    if(l == NULL || (cmp = my_strcasecmp(l->issuingAgencyName, issuingAgency)) > 0){
         agencyList aux = malloc(sizeof(agencyNode));
         if( aux == NULL || errno == ENOMEM){
-            *flag = 0; // devuelvo una flag si hubo un error para despues hacer free del ADT
-            return;
-        }
-        strcpy(aux->issuingAgencyName, issuingAgency);
-        aux->infractionsArr = calloc(infractionId + 1, sizeof(size_t));
-        if (aux->infractionsArr == NULL || errno == ENOMEM) {
-            *flag = 0;
-            free(aux);
-            return;
-        }
-
-        aux->tail = next->tail;
-        next->tail = aux;
-        aux->arrSize = infractionId + 1;
-        aux->infractionsArr[infractionId] += 1;
-        aux->maxArrIndex = infractionId;
-        return;
-    }
-    
-    if (my_strcasecmp(next->tail->issuingAgencyName, issuingAgency) == 0)
-    {
-        if (infractionId >= next->tail->arrSize)
-        {
-            int i = next->tail->arrSize;
-            if (infractionId + 1 > next->tail->arrSize + BLOQUE)
-            {
-                next->tail->arrSize = infractionId + 1;
-                next->tail->infractionsArr = realloc(next->tail->infractionsArr, next->tail->arrSize * sizeof(size_t));
-                if(next->tail->infractionsArr == NULL || errno == ENOMEM){
-                    *flag = 0;
-                    return;
-                }
-                
-            }else{
-                next->tail->arrSize = next->tail->arrSize + BLOQUE;
-                next->tail->infractionsArr = realloc(next->tail->infractionsArr, next->tail->arrSize * sizeof(size_t));
-                if(next->tail->infractionsArr == NULL || errno == ENOMEM){
-                    *flag = 0;
-                    return;
-                }
-            }
-              
-            while(i < next->tail->arrSize){
-                next->tail->infractionsArr[i++] = 0;
-            }
-            next->tail->infractionsArr[infractionId] += 1;
-            next->tail->maxArrIndex = infractionId;
-            return;
-        }
-        next->tail->infractionsArr[infractionId] += 1;
-        if (next->tail->maxArrIndex < infractionId)
-        {
-            next->tail->maxArrIndex = infractionId;
-        }
-        return;
-    }
-    recQuery2Read(next->tail, infractionId, issuingAgency,flag);
-    return;
-}
-
-/* Funcion que busca la issuingAgnecy que corresponda por la lista sumar en el InfractionId que corresponda*/
-void query2Read(parkingTicketsADT q, int infractionId, char issuingAgency[]){
-    if (q->firstQ2 == NULL || my_strcasecmp(q->firstQ2->issuingAgencyName, issuingAgency) > 0)
-    {
-        agencyList aux = malloc(sizeof(agencyNode));
-        if( aux == NULL || errno == ENOMEM){
-            freeADT(q);
-            throwError("Memory error");
+            return NULL;
         }
         strcpy(aux->issuingAgencyName, issuingAgency);
         aux->infractionsArr = calloc(infractionId + 1, sizeof(size_t));
         if (aux->infractionsArr == NULL || errno == ENOMEM){
-            freeADT(q);
-            throwError("Memory error");
+            free(aux);
+            return NULL;
         }
-        aux->tail = q->firstQ2;
+        aux->tail = l;
         aux->arrSize = infractionId + 1;
         aux->maxArrIndex = infractionId;
         aux->infractionsArr[infractionId] += 1;
-        q->firstQ2 = aux;
-        return;
-    }
-
-    if (my_strcasecmp(q->firstQ2->issuingAgencyName, issuingAgency) == 0)
-    {
-        if (q->firstQ2->arrSize <= infractionId)
-        {
-            int i = q->firstQ2->arrSize;
-            if (infractionId + 1 > q->firstQ2->arrSize + BLOQUE)
-            {
-                q->firstQ2->arrSize = infractionId + 1;
-                q->firstQ2->infractionsArr = realloc(q->firstQ2->infractionsArr, q->firstQ2->arrSize * sizeof(size_t));
-                if(q->firstQ2->infractionsArr == NULL || errno == ENOMEM){
-                    freeADT(q);
-                    throwError("Memory error");
+        l = aux;
+    } else if(cmp == 0){
+        if( infractionId >= l->arrSize){
+            if(infractionId +1 > l->arrSize + BLOQUE){
+                l->arrSize = infractionId + 1;
+                l->infractionsArr = realloc(l->infractionsArr, l->arrSize * sizeof(size_t));
+                if(l->infractionsArr == NULL || errno == ENOMEM){
+                    return NULL;
                 }
-                
-            }else{
-                q->firstQ2->arrSize = q->firstQ2->arrSize + BLOQUE;
-                q->firstQ2->infractionsArr = realloc(q->firstQ2->infractionsArr, q->firstQ2->arrSize * sizeof(size_t));
-                if(q->firstQ2->infractionsArr == NULL || errno == ENOMEM){
-                    freeADT(q);
-                    throwError("Memory error");
+            } else {
+                l->arrSize += BLOQUE;
+                l->infractionsArr = realloc(l->infractionsArr, l->arrSize * sizeof(size_t));
+                if(l->infractionsArr == NULL || errno == ENOMEM){
+                    return NULL;
                 }
-            } 
-
-            while(i < q->firstQ2->arrSize){
-                q->firstQ2->infractionsArr[i++] = 0;
             }
-            q->firstQ2->infractionsArr[infractionId] += 1;
-            q->firstQ2->maxArrIndex = infractionId;
-            return;
+            for(int i = l->maxArrIndex + 1; i < l->arrSize; i++){
+                l->infractionsArr[i] = 0;
+            }
+            l->maxArrIndex = infractionId;
         }
-        q->firstQ2->infractionsArr[infractionId] += 1;
-        if (q->firstQ2->maxArrIndex < infractionId)
-        {
-            q->firstQ2->maxArrIndex = infractionId;
+        l->infractionsArr[infractionId] += 1;
+        if(l->maxArrIndex < infractionId){
+            l->maxArrIndex = infractionId;
         }
-        return;
-    
+    } else {
+        l->tail = query2ReadRec(l->tail, infractionId, issuingAgency);
     }
-    int flag = 1;
-    recQuery2Read(q->firstQ2, infractionId, issuingAgency, &flag);
-    if(flag == 0){
+    return l;
+}
+
+
+/* Funcion que busca la issuingAgnecy que corresponda por la lista sumar en el InfractionId que corresponda*/
+void query2Read(parkingTicketsADT q, int infractionId, char * issuingAgency){
+    q->firstQ2 = query2ReadRec(q->firstQ2, infractionId, issuingAgency);
+    if (q->firstQ2 == NULL){
         freeADT(q);
         throwError("Memory error");
     }
-
-    
 }
 
 
@@ -325,48 +249,32 @@ y maxInfractionAmm.
 si empatan se define por el nombre, usar el arreglo del query 1 para esto*/
 
 static agencyList query2ProcessingRec(agencyList l, infractionIdArr * arr, size_t minIndex){
-    if(l==NULL)
+    if (l == NULL){
         return NULL;
-
-    int idxMayor;
-    if (minIndex >= l->arrSize) {
-        agencyList aux = l->tail;
-        free(l->infractionsArr);
-        free(l);
-        return query2ProcessingRec(aux, arr, minIndex);
-    }else{
-        idxMayor = minIndex;
-        for(int i = idxMayor + 1; i < l->maxArrIndex; i++ ){
-        if(arr[i].infractionName[0] != '\0'  && l->infractionsArr[i] > 0){
-                if(l->infractionsArr[i] > l->infractionsArr[idxMayor]){
-                    idxMayor = i;
-                } else if(l->infractionsArr[i] == l->infractionsArr[idxMayor]){
-                    if(my_strcasecmp(arr[idxMayor].infractionName ,arr[i].infractionName)>0){
-                    idxMayor = i;
-                }
-            }
+    }
+    l->tail = query2ProcessingRec(l->tail, arr, minIndex);
+    size_t max = 0;
+    for(size_t i = minIndex; i < l->arrSize; i++){
+        if(l->infractionsArr[i] > max){
+            max = l->infractionsArr[i];
+            strcpy(l->maxInfractionName, arr[i].infractionName);
+        } else if(l->infractionsArr[i] == max && my_strcasecmp(arr[i].infractionName, l->maxInfractionName) < 0){
+            strcpy(l->maxInfractionName, arr[i].infractionName);
         }
     }
-    l->maxInfractionAmm = l->infractionsArr[idxMayor];
-    strcpy(l->maxInfractionName, arr[idxMayor].infractionName);
-    l->tail = query2ProcessingRec(l->tail, arr, minIndex);
+    l->maxInfractionAmm = max;
     return l;
-    }
-    
 }
 
 void query2Processing(parkingTicketsADT q){
-    size_t minIndex=-1;
-    /*Busco un index minimo valido (con nombre)*/
-    for (int i = 0; i <= q->infArraySize; i++){
-        if (q->infractionArr[i].infractionName[0] != '\0'){
+    size_t minIndex = 0;
+    for(size_t i = 0; i < q->infArraySize; i++){
+        if(q->infractionArr[i].infractionName[0] != '\0'){
             minIndex = i;
             break;
         }
     }
-    if (minIndex == -1){
-        return; // No encontro ningun nombre de infraccion y habria q pensar q hacer
-    }
+
     q->firstQ2 = query2ProcessingRec(q->firstQ2, q->infractionArr, minIndex);
 }
 
