@@ -10,6 +10,7 @@
 #include <string.h>
 #include <errno.h>
 
+
 #define BLOQUE 30
 #define MAX_CHAR_PLATE 11
 #define MAX_CHAR_ISSUING_AGENCY 36
