@@ -418,6 +418,7 @@ void throwError(const char * msg){
 static void freeRec(agencyList l){
     if (l != NULL){
         freeRec(l->tail);
+        free(l->infractionsArr);
         free(l);
     }
 }
