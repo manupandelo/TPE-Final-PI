@@ -6,8 +6,6 @@
 #include <errno.h>
 #include "parkingTicketsADT.h"
 
-
-
 typedef struct ticket{
     char plate[MAX_CHAR_PLATE];
     char agency[MAX_CHAR_ISSUING_AGENCY];
@@ -72,6 +70,8 @@ int main(int argc, char const *argv[])
         fclose(query3CSV);
     }
     /*Resuelvo query3*/
+
+    freeADT(tickets);
     return 0;
 }
 

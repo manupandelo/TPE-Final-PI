@@ -1,6 +1,9 @@
 #include <stdio.h>
+#include <math.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <time.h>  
+#include <assert.h>
 #include <string.h>
 #include <strings.h>
 #include <errno.h>
@@ -448,16 +451,8 @@ static void freeRecArr(infractionIdPlateArr * arr, size_t size){
     free(arr);
 }
 
-static void freeArr(infractionIdArr * arr, size_t size){
-    for (size_t i = 0; i < size; i++){
-        if (arr[i].infractionName[0] != '\0')
-            free(arr[i].infractionName);
-    }
-    free(arr);
-} 
-
 void freeADT(parkingTicketsADT t){
-    freeArr(t->infractionArr, t->infArraySize);
+    free(t->infractionArr);
     freeRec(t->agency);
     freeRecArr(t->infPlateArr, t->infPlateSize);
     free(t);

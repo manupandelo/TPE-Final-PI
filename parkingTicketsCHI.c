@@ -71,6 +71,8 @@ int main(int argc, char const *argv[])
         fclose(query3CSV);
     }
     /*Resuelvo query3*/
+
+    freeADT(tickets);
     return 0;
 }
 
