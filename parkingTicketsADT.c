@@ -1,9 +1,6 @@
 #include <stdio.h>
-#include <math.h>
 #include <ctype.h>
 #include <stdlib.h>
-#include <time.h>  
-#include <assert.h>
 #include <string.h>
 #include <strings.h>
 #include <errno.h>
@@ -72,7 +69,6 @@ typedef struct parkingTicketsCDT
 }parkingTicketsCDT;
 
 static int my_strcasecmp(const char *s1, const char *s2) {
-    return strcasecmp(s1, s2);
     while (*s1 && *s2) {
         int c1 = tolower((unsigned char)*s1);
         int c2 = tolower((unsigned char)*s2);

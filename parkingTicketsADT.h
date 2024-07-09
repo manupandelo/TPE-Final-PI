@@ -2,12 +2,10 @@
 #define PARKINGTICKETSADT_H
 
 #include <stdio.h>
-#include <math.h>
 #include <ctype.h>
 #include <stdlib.h>
-#include <time.h>  
-#include <assert.h>
 #include <string.h>
+#include <strings.h>
 #include <errno.h>
 
 #define BLOQUE 30
