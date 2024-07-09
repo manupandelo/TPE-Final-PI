@@ -88,7 +88,7 @@ void loadInfractions(parkingTicketsADT t, FILE * infractionFile){
     int infractionId;
     char infractionName[MAX_CHAR_INFRACTION_NAME];
 
-    while (fscanf(infractionFile, "%d;%30[^\n]\n", &infractionId, infractionName) == 2){
+    while (fscanf(infractionFile, "%d;%50[^\n]\n", &infractionId, infractionName) == 2){
         addInfraction(t, infractionId, infractionName);
     }
 }
@@ -103,7 +103,7 @@ void loadTickets(parkingTicketsADT t, FILE * ticketFile){
     ticket fine;
 
     fscanf(ticketFile, "%*[^\n]\n");
-    while (fscanf(ticketFile, "%*[^;];%[^;];%d;%[^;];%*d\n", fine.plate, &fine.infractionId, fine.agency) == 3){
+    while (fscanf(ticketFile, "%*[^;];%10[^;];%13[^;];%d;%*[^\n]\n", fine.plate, fine.agency, &fine.infractionId) == 3){
         sumInfractionByTicket(t, fine.infractionId);
         query2Read(t, fine.infractionId, fine.agency);
         query3Read(t, fine.infractionId, fine.plate); 
