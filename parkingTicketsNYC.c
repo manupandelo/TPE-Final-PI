@@ -7,6 +7,8 @@
 #include <string.h>
 #include "parkingTicketsADT.h"
 
+#define NY
+
 typedef struct ticket{
     char plate[MAX_CHAR_PLATE];
     char agency[MAX_CHAR_ISSUING_AGENCY];
