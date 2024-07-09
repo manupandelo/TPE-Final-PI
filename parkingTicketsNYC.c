@@ -108,7 +108,7 @@ void loadTickets(parkingTicketsADT t, FILE * ticketFile){
     fscanf(ticketFile, "%*[^\n]\n");
     while (fscanf(ticketFile, "%10[^;];%*[^;];%d;%*[^;];%35[^\n]\n", fine.plate, &fine.infractionId, fine.agency) == 3){
         sumInfractionByTicket(t, fine.infractionId);
-        query2Read(t, fine.infractionId, fine.agency);
-        query3Read(t, fine.infractionId, fine.plate); 
+        addInfByAgency(t, fine.infractionId, fine.agency);
+        addPlateTicketsByInf(t, fine.infractionId, fine.plate); 
     }
 }

@@ -11,4 +11,4 @@ NYC: parkingTicketsNYC.c parkingTicketsADT.c
 	$(COMPILER) $(FLAGS) -DNY -o NYC.out $^
 
 clean:
-	rm -f CHI.out NYC.out
+	rm -rf CHI.out NYC.out CHI.out.dSYM NYC.out.dSYM query1.csv query2.csv query3.csv

@@ -61,12 +61,12 @@ typedef struct parkingTicketsCDT
     /*QUERY 1*/
 
     /*QUERY 2*/
-    agencyList firstQ2;
+    agencyList agency;
     /*QUERY 2*/
     
     /*QUERY 3*/
-    infractionIdPlateArr * arrQ3; /*Arreglo indexado por InfractionID adentro */ 
-    size_t arrQ3Size;            /* tiene lista de patentes ordenadas alfabeticamente*/
+    infractionIdPlateArr * infPlateArr; /*Arreglo indexado por InfractionID adentro */ 
+    size_t infPlateSize;            /* tiene lista de patentes ordenadas alfabeticamente*/
     /*QUERY 3*/
 
 }parkingTicketsCDT;
@@ -85,14 +85,12 @@ static int my_strcasecmp(const char *s1, const char *s2) {
     return tolower((unsigned char)*s1) - tolower((unsigned char)*s2);
 }
 
-
 // Creo un nuevo ADT
 parkingTicketsADT newADT(void){
     parkingTicketsADT new = calloc(1,sizeof(parkingTicketsCDT));
     if(new == NULL || errno == ENOMEM){
         throwError("Memory error");
     }
-
     return new;
 }
 
@@ -135,11 +133,8 @@ void sumInfractionByTicket(parkingTicketsADT q, int infractionId){
     q->infractionArr[infractionId].cant += 1;
 }
 
-
-
 void getInfractionsListRec(infractionList next, infractionList l){
-    if (next->tail == NULL || next->tail->infractionsAmm < l->infractionsAmm || ((next->tail->infractionsAmm == l->infractionsAmm) && my_strcasecmp(l->infractionName, next->tail->infractionName) < 0))
-    {
+    if (next->tail == NULL || next->tail->infractionsAmm < l->infractionsAmm || ((next->tail->infractionsAmm == l->infractionsAmm) && my_strcasecmp(l->infractionName, next->tail->infractionName) < 0)){
         l->tail = next->tail;
         next->tail = l;
         return;
@@ -171,21 +166,20 @@ infractionList getInfractionsList(parkingTicketsADT q){
 /*Funcion recursiva que con la infractionList arma el CSV del query 1*/
 void writeQuery1(FILE * query1File, infractionList first){
     if (first == NULL){
-        return;  /*Por ahi que poner algun error, seria raro que este vacia la lista*/
+        return;
     }
-
     fprintf(query1File, "%s;%d\n", first->infractionName, first->infractionsAmm);
-
     writeQuery1(query1File, first->tail);
 }
 
 void query1(FILE * query1File, parkingTicketsADT q){
     infractionList listaQ1 = getInfractionsList(q);
+    fprintf(query1File, "infraction;tickets\n");
     writeQuery1(query1File, listaQ1);
     freeQ1(listaQ1);
 }
 
-static agencyList query2ReadRec(agencyList l , int infractionId, char * issuingAgency){
+static agencyList addInfByAgencyRec(agencyList l , int infractionId, char * issuingAgency){
     int cmp;
     if(l == NULL || (cmp = my_strcasecmp(l->issuingAgencyName, issuingAgency)) > 0){
         agencyList aux = malloc(sizeof(agencyNode));
@@ -228,31 +222,26 @@ static agencyList query2ReadRec(agencyList l , int infractionId, char * issuingA
             l->maxArrIndex = infractionId;
         }
     } else {
-        l->tail = query2ReadRec(l->tail, infractionId, issuingAgency);
+        l->tail = addInfByAgencyRec(l->tail, infractionId, issuingAgency);
     }
     return l;
 }
 
 
 /* Funcion que busca la issuingAgnecy que corresponda por la lista sumar en el InfractionId que corresponda*/
-void query2Read(parkingTicketsADT q, int infractionId, char * issuingAgency){
-    q->firstQ2 = query2ReadRec(q->firstQ2, infractionId, issuingAgency);
-    if (q->firstQ2 == NULL){
+void addInfByAgency(parkingTicketsADT q, int infractionId, char * issuingAgency){
+    q->agency = addInfByAgencyRec(q->agency, infractionId, issuingAgency);
+    if (q->agency == NULL){
         freeADT(q);
         throwError("Memory error");
     }
 }
 
-
-/*Encuentra la maxima infraccion por issuing agency la pone en maxInfractionName
-y maxInfractionAmm.
-si empatan se define por el nombre, usar el arreglo del query 1 para esto*/
-
-static agencyList query2ProcessingRec(agencyList l, infractionIdArr * arr, size_t minIndex){
+static agencyList getMaxInfByAgencyRec(agencyList l, infractionIdArr * arr, size_t minIndex){
     if (l == NULL){
         return NULL;
     }
-    l->tail = query2ProcessingRec(l->tail, arr, minIndex);
+    l->tail = getMaxInfByAgencyRec(l->tail, arr, minIndex);
     size_t max = 0;
     for(size_t i = minIndex; i < l->arrSize; i++){
         if(l->infractionsArr[i] > max){
@@ -266,7 +255,7 @@ static agencyList query2ProcessingRec(agencyList l, infractionIdArr * arr, size_
     return l;
 }
 
-void query2Processing(parkingTicketsADT q){
+void getMaxInfByAgency(parkingTicketsADT q){
     size_t minIndex = 0;
     for(size_t i = 0; i < q->infArraySize; i++){
         if(q->infractionArr[i].infractionName[0] != '\0'){
@@ -275,7 +264,7 @@ void query2Processing(parkingTicketsADT q){
         }
     }
 
-    q->firstQ2 = query2ProcessingRec(q->firstQ2, q->infractionArr, minIndex);
+    q->agency = getMaxInfByAgencyRec(q->agency, q->infractionArr, minIndex);
 }
 
 void writeQuery2(FILE * query2File, agencyList l){
@@ -288,13 +277,14 @@ void writeQuery2(FILE * query2File, agencyList l){
 
 
 void query2(FILE * query2File, parkingTicketsADT q){
-    query2Processing(q);
-    writeQuery2(query2File, q->firstQ2);
+    getMaxInfByAgency(q);
+    fprintf(query2File,"issuingAgency;infraction;tickets\n");
+    writeQuery2(query2File, q->agency);
 }
 
 
 
-static plateList recQuery3Read(plateList root, char * plate, int * flag){
+static plateList addPlateTicketsByInfRec(plateList root, char * plate, int * flag){
     if (root == NULL){
         plateList aux = malloc(sizeof(plateNode));
         if (aux == NULL || errno == ENOMEM){
@@ -311,44 +301,44 @@ static plateList recQuery3Read(plateList root, char * plate, int * flag){
     if (cmp == 0){
         root->cant += 1;
     } else if (cmp < 0){
-        root->left = recQuery3Read(root->left, plate, flag);
+        root->left = addPlateTicketsByInfRec(root->left, plate, flag);
     } else{
-        root->right = recQuery3Read(root->right, plate, flag);
+        root->right = addPlateTicketsByInfRec(root->right, plate, flag);
     }
     return root;
 }
 
-void query3Read(parkingTicketsADT q, size_t infractionId, char plate[]){
+void addPlateTicketsByInf(parkingTicketsADT q, size_t infractionId, char * plate){
     /*No hace nada si la infraccion no tiene nombre*/
     if (q->infractionArr[infractionId].infractionName[0] == '\0'){
         return;
     }
     
-    if(infractionId + 1 > q->arrQ3Size){
-        int i = q->arrQ3Size;
-        if( infractionId + 1 > q->arrQ3Size + BLOQUE ){
-            q->arrQ3Size = infractionId + 1;
-            q->arrQ3 = realloc(q->arrQ3, q->arrQ3Size * sizeof(infractionIdPlateArr));
-            if(q->arrQ3 == NULL || errno == ENOMEM){
+    if(infractionId + 1 > q->infPlateSize){
+        int i = q->infPlateSize;
+        if( infractionId + 1 > q->infPlateSize + BLOQUE ){
+            q->infPlateSize = infractionId + 1;
+            q->infPlateArr = realloc(q->infPlateArr, q->infPlateSize * sizeof(infractionIdPlateArr));
+            if(q->infPlateArr == NULL || errno == ENOMEM){
                 freeADT(q);
                 throwError("Memory error");
             }
         } else {
-            q->arrQ3Size += BLOQUE;            
-            q->arrQ3 = realloc(q->arrQ3, q->arrQ3Size * sizeof(infractionIdPlateArr));
-            if(q->arrQ3 == NULL || errno == ENOMEM){
+            q->infPlateSize += BLOQUE;            
+            q->infPlateArr = realloc(q->infPlateArr, q->infPlateSize * sizeof(infractionIdPlateArr));
+            if(q->infPlateArr == NULL || errno == ENOMEM){
                 freeADT(q);
                 throwError("Memory error");
             }
         }
 
-        while(i < q->arrQ3Size){
-            q->arrQ3[i].first = NULL;
+        while(i < q->infPlateSize){
+            q->infPlateArr[i].first = NULL;
             i++;
         }
     }
     int flag = 1;
-    q->arrQ3[infractionId].first = recQuery3Read(q->arrQ3[infractionId].first, plate, &flag);
+    q->infPlateArr[infractionId].first = addPlateTicketsByInfRec(q->infPlateArr[infractionId].first, plate, &flag);
     if(flag == 0){
         freeADT(q);
         throwError("Memory error");
@@ -364,7 +354,7 @@ void writeQuery3(FILE * query3File, maxPlateByInfList l){
 }
 
 
-void recArrToListQuery3(maxPlateByInfList *l, maxPlateByInfList aux){
+static void getMaxPlateByInfRec(maxPlateByInfList *l, maxPlateByInfList aux){
     while (*l != NULL && my_strcasecmp((*l)->infractionName, aux->infractionName) <= 0) {
         l = &(*l)->tail;
     }
@@ -388,9 +378,9 @@ void maxPlateFinder(plateList first, maxPlateByInfList aux, size_t * max){
 }
 
 /*Retorna la lista armada con los datos como corresponde para pasarla a la funcion del CSV*/
-maxPlateByInfList arrToListQ3(parkingTicketsADT q){
+maxPlateByInfList getMaxPlateByInf(parkingTicketsADT q){
     maxPlateByInfList first = NULL;
-    for (size_t i = 0; i < q->arrQ3Size; i++){
+    for (size_t i = 0; i < q->infPlateSize; i++){
         if (q->infractionArr[i].infractionName[0] != '\0'){
             maxPlateByInfList aux = malloc(sizeof(maxPlateByInfNode));
             if (aux == NULL || errno == ENOMEM){
@@ -398,7 +388,7 @@ maxPlateByInfList arrToListQ3(parkingTicketsADT q){
                 throwError("Memory error");
             }
             aux->maxInfractionAmm = 0;
-            maxPlateFinder(q->arrQ3[i].first, aux, &aux->maxInfractionAmm);
+            maxPlateFinder(q->infPlateArr[i].first, aux, &aux->maxInfractionAmm);
             strcpy(aux->infractionName, q->infractionArr[i].infractionName);
             if (aux->maxInfractionAmm == 0){ /*No encontro patente*/
                 free(aux);
@@ -407,7 +397,7 @@ maxPlateByInfList arrToListQ3(parkingTicketsADT q){
                     aux->tail = first;
                     first = aux;           
                 } else {
-                    recArrToListQuery3(&first->tail, aux); 
+                    getMaxPlateByInfRec(&first->tail, aux); 
                 }
             }
         }
@@ -416,7 +406,8 @@ maxPlateByInfList arrToListQ3(parkingTicketsADT q){
 }
 
 void query3(FILE * query3file, parkingTicketsADT q){
-    maxPlateByInfList l = arrToListQ3(q);
+    maxPlateByInfList l = getMaxPlateByInf(q);
+    fprintf(query3file,"infraction;plate;tickets\n");
     writeQuery3(query3file, l);
     freeQ3(l);    
 }
@@ -472,8 +463,8 @@ static void freeArr(infractionIdArr * arr, size_t size){
 
 void freeADT(parkingTicketsADT t){
     freeArr(t->infractionArr, t->infArraySize);
-    freeRec(t->firstQ2);
-    freeRecArr(t->arrQ3, t->arrQ3Size);
+    freeRec(t->agency);
+    freeRecArr(t->infPlateArr, t->infPlateSize);
     free(t);
 }
 

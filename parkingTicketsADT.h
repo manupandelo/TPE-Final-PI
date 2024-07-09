@@ -10,7 +10,6 @@
 #include <string.h>
 #include <errno.h>
 
-
 #define BLOQUE 30
 #define MAX_CHAR_PLATE 11
 #define MAX_ARGS 6
@@ -42,7 +41,7 @@ void query2 (FILE * query2File, parkingTicketsADT q);
 void query3(FILE * query3file, parkingTicketsADT q);
 /*QUERIES*/
 
-// Funcion que recibe un InfractionId y depende esta suma 1 a la cantidad de tickets que tienen esa infraccion
+// Funcion que recibe un InfractionId y depende esta sumaa 1 a la cantidad de tickets que tienen esa infraccion
 // Si no existe la infraccion, retorna.
 void sumInfractionByTicket(parkingTicketsADT q, int infractionId);
 
@@ -58,25 +57,34 @@ void writeQuery2(FILE * query2File, agencyList l);
 // Escribe en el archivo query3File la lista de patentes con la mayor cantidad de infracciones
 void writeQuery3(FILE * query3File, maxPlateByInfList l);
 
-void query2Read(parkingTicketsADT q, int infractionId, char issuingAgency[]);
+//Recibe el id de Infraccion y la agencia que la emitio, si la agencia no existe la agrega
+//Si la agencia existe, suma 1 a la cantidad de tickets que tiene dicha infraccion
+void addInfByAgency(parkingTicketsADT q, int infractionId, char * issuingAgency);
 
-void query2Processing(parkingTicketsADT q);
+void getMaxInfByAgency(parkingTicketsADT q);
 
 // Funcion que recibe un arbol de patentes, un puntero a la lista de patentes y un puntero al maximo
 // Recorre el arbol y guarda en la lista las patentes que tienen la mayor cantidad de infracciones
 void maxPlateFinder(plateList first, maxPlateByInfList aux, size_t * max);
 
-void query3Read(parkingTicketsADT q, size_t infractionId, char plate[]);
+// Funcion que recibe un id de infraccion y una patente, si la patente no existe la agrega
+// Si la patente existe, suma 1 a la cantidad de infracciones que tiene
+void addPlateTicketsByInf(parkingTicketsADT q, size_t infractionId, char * plate);
 
+// Funcion que devuelve una lista ordenada alfabeticamente por el nombre de la infraccion
+// con la patente que tiene la mayor cantidad de tickets de dicha infraccion y su cantidad
+maxPlateByInfList getMaxPlateByInf(parkingTicketsADT q);
 
-maxPlateByInfList arrToListQ3(parkingTicketsADT q);
-
+// Solo invocada si hubo un error
 void throwError(const char * msg);
 
+// Funcion que libera la memoria de la lista de infracciones
 void freeQ1(infractionList l);
 
+// Funcion que libera la memoria de la lista de agencias
 void freeQ3(maxPlateByInfList l);
 
+// Funcion que libera la memoria del ADT
 void freeADT(parkingTicketsADT q);
 
 #endif
