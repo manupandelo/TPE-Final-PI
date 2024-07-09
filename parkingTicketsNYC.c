@@ -5,9 +5,10 @@
 #include <time.h>  
 #include <assert.h>
 #include <string.h>
+#define NY
 #include "parkingTicketsADT.h"
 
-#define NY
+
 
 typedef struct ticket{
     char plate[MAX_CHAR_PLATE];

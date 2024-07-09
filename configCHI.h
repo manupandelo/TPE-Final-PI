@@ -1,8 +1,0 @@
-#ifndef CONFIGCHI_H
-#define CONFIGCHI_H
-
-#define MAX_CHAR_ISSUING_AGENCY 14
-#define MAX_CHAR_INFRACTION_NAME 51
-
-#endif 
-

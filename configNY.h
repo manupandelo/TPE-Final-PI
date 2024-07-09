@@ -1,7 +1,0 @@
-#ifndef CONFIGNY_H
-#define CONFIGNY_H
-
-#define MAX_CHAR_ISSUING_AGENCY 36
-#define MAX_CHAR_INFRACTION_NAME 31
-
-#endif 

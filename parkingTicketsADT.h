@@ -13,17 +13,7 @@
 #define BLOQUE 30
 #define MAX_CHAR_PLATE 11
 #define MAX_ARGS 6
-
-#ifdef NY
-#define MAX_CHAR_ISSUING_AGENCY 36
-#define MAX_CHAR_INFRACTION_NAME 31
-#elif defined(CHI)
-#define MAX_CHAR_ISSUING_AGENCY 14
-#define MAX_CHAR_INFRACTION_NAME 51
-#else
-#define ERROR 1
-#endif
-
+#include "config.h"
 
 /*Lista ordenada descendentemente por infractionsAmm*/
 typedef struct parkingTicketsCDT * parkingTicketsADT;

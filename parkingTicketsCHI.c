@@ -7,7 +7,6 @@
 #include <string.h>
 #include "parkingTicketsADT.h"
 
-#define CHI
 
 typedef struct ticket{
     char plate[MAX_CHAR_PLATE];
