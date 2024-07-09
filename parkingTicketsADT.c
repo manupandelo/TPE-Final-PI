@@ -95,8 +95,7 @@ parkingTicketsADT newADT(void){
 }
 
 void addInfraction(parkingTicketsADT q, int infractionId, char infractionName[]){
-    if (infractionId + 1 > q->infArraySize)
-    {
+    if (infractionId + 1 > q->infArraySize){
         int i = q->infArraySize;
         if (infractionId + 1 > q->infArraySize + BLOQUE)
         {

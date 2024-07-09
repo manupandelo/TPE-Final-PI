@@ -5,7 +5,6 @@
 #include <time.h>  
 #include <assert.h>
 #include <string.h>
-#define NY
 #include "parkingTicketsADT.h"
 
 
