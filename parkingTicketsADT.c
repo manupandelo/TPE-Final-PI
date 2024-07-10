@@ -273,7 +273,6 @@ void writeQuery2(FILE * query2File, agencyList l){
     writeQuery2(query2File, l->tail);
 }
 
-
 void query2(FILE * query2File, parkingTicketsADT q){
     getMaxInfByAgency(q);
     fprintf(query2File,"issuingAgency;infraction;tickets\n");
