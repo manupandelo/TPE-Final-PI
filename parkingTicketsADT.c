@@ -96,8 +96,7 @@ parkingTicketsADT newADT(void){
 void addInfraction(parkingTicketsADT q, int infractionId, char infractionName[]){
     if (infractionId + 1 > q->infArraySize){
         int i = q->infArraySize;
-        if (infractionId + 1 > q->infArraySize + BLOQUE)
-        {
+        if (infractionId + 1 > q->infArraySize + BLOQUE){ /*Si el infractionId es mayor al tamaño del array + BLOQUE, se reasigna el tamaño del array*/
             q->infArraySize = infractionId + 1;
             q->infractionArr = realloc(q->infractionArr, q->infArraySize * sizeof(infractionIdArr));
             
@@ -106,7 +105,7 @@ void addInfraction(parkingTicketsADT q, int infractionId, char infractionName[])
                 throwError("Memory error");
             }
         }
-        else{
+        else{ /*Si no, se le suma BLOQUE al tamaño del array y se reasigna el tamaño*/
             q->infArraySize += BLOQUE;
             q->infractionArr = realloc(q->infractionArr, q->infArraySize * sizeof(infractionIdArr));
             
@@ -115,12 +114,12 @@ void addInfraction(parkingTicketsADT q, int infractionId, char infractionName[])
                 throwError("Memory error");
             }
         }  
-        while(i < q->infArraySize){
+        while(i < q->infArraySize){ //Inicializo el array
             q->infractionArr[i].cant = 0;
             q->infractionArr[i++].infractionName[0] = '\0';
         }     
     }
-    strcpy(q->infractionArr[infractionId].infractionName, infractionName);
+    strcpy(q->infractionArr[infractionId].infractionName, infractionName); //Guardo el nombre de la infraccion
 }
 
 /*Funcion que suma 1 en infractionsAmm en el index del infractionId*/
@@ -128,12 +127,12 @@ void sumInfractionByTicket(parkingTicketsADT q, int infractionId){
     if (q->infArraySize <= infractionId){
         return;
     }
-    q->infractionArr[infractionId].cant += 1;
+    q->infractionArr[infractionId].cant += 1; //Sumo 1 a la cantidad de infracciones
 }
 
 void getInfractionsListRec(infractionList next, infractionList l){
     if (next->tail == NULL || next->tail->infractionsAmm < l->infractionsAmm || ((next->tail->infractionsAmm == l->infractionsAmm) && my_strcasecmp(l->infractionName, next->tail->infractionName) < 0)){
-        l->tail = next->tail;
+        l->tail = next->tail; //Si la cantidad de infracciones es mayor o el nombre es menor, lo agrego ahi
         next->tail = l;
         return;
     }
@@ -150,10 +149,10 @@ infractionList getInfractionsList(parkingTicketsADT q){
             aux->infractionsAmm = q->infractionArr[i].cant;
             strcpy(aux->infractionName, q->infractionArr[i].infractionName);
             if (first == NULL || first->infractionsAmm < aux->infractionsAmm || ((first->infractionsAmm == aux->infractionsAmm) && my_strcasecmp(aux->infractionName, first->infractionName) < 0)){
-                aux->tail = first;
+                aux->tail = first;  //Si la cantidad de infracciones es mayor o el nombre es menor, lo agrego al principio
                 first = aux;
             }else{
-                getInfractionsListRec(first, aux);
+                getInfractionsListRec(first, aux); //Si no, lo agrego en el lugar correspondiente
             } 
         }  
     }
@@ -171,32 +170,32 @@ void writeQuery1(FILE * query1File, infractionList first){
 }
 
 void query1(FILE * query1File, parkingTicketsADT q){
-    infractionList listaQ1 = getInfractionsList(q);
+    infractionList listaQ1 = getInfractionsList(q); //Armo la lista de infracciones
     fprintf(query1File, "infraction;tickets\n");
-    writeQuery1(query1File, listaQ1);
-    freeQ1(listaQ1);
+    writeQuery1(query1File, listaQ1); //Escribo el CSV
+    freeQ1(listaQ1); //Libero la memoria
 }
 
 static agencyList addInfByAgencyRec(agencyList l , int infractionId, char * issuingAgency){
     int cmp;
-    if(l == NULL || (cmp = my_strcasecmp(l->issuingAgencyName, issuingAgency)) > 0){
+    if(l == NULL || (cmp = my_strcasecmp(l->issuingAgencyName, issuingAgency)) > 0){ //Si la agencia no existe o es mayor alfabeticamente
         agencyList aux = malloc(sizeof(agencyNode));
         if( aux == NULL || errno == ENOMEM){
             return NULL;
         }
         strcpy(aux->issuingAgencyName, issuingAgency);
-        aux->infractionsArr = calloc(infractionId + 1, sizeof(size_t));
+        aux->infractionsArr = calloc(infractionId + 1, sizeof(size_t)); //Inicializo el array de infracciones
         if (aux->infractionsArr == NULL || errno == ENOMEM){
             free(aux);
             return NULL;
         }
-        aux->tail = l;
+        aux->tail = l;                      //Guardo la lista
         aux->arrSize = infractionId + 1;
         aux->maxArrIndex = infractionId;
         aux->infractionsArr[infractionId] += 1;
         l = aux;
-    } else if(cmp == 0){
-        if( infractionId >= l->arrSize){
+    } else if(cmp == 0){ //Si la agencia ya existe
+        if( infractionId >= l->arrSize){    //Si el infractionId es mayor al tamaño del array
             if(infractionId +1 > l->arrSize + BLOQUE){
                 l->arrSize = infractionId + 1;
                 l->infractionsArr = realloc(l->infractionsArr, l->arrSize * sizeof(size_t));
@@ -210,17 +209,17 @@ static agencyList addInfByAgencyRec(agencyList l , int infractionId, char * issu
                     return NULL;
                 }
             }
-            for(int i = l->maxArrIndex + 1; i < l->arrSize; i++){
+            for(int i = l->maxArrIndex + 1; i < l->arrSize; i++){ //Inicializo el array de infracciones
                 l->infractionsArr[i] = 0;
             }
-            l->maxArrIndex = infractionId;
+            l->maxArrIndex = infractionId; //Guardo el maximo index
         }
         l->infractionsArr[infractionId] += 1;
         if(l->maxArrIndex < infractionId){
-            l->maxArrIndex = infractionId;
+            l->maxArrIndex = infractionId; //Guardo el maximo index
         }
     } else {
-        l->tail = addInfByAgencyRec(l->tail, infractionId, issuingAgency);
+        l->tail = addInfByAgencyRec(l->tail, infractionId, issuingAgency); //Si la agencia ya existe y es menor alfabeticamente
     }
     return l;
 }
@@ -239,50 +238,49 @@ static agencyList getMaxInfByAgencyRec(agencyList l, infractionIdArr * arr, size
     if (l == NULL){
         return NULL;
     }
-    l->tail = getMaxInfByAgencyRec(l->tail, arr, minIndex);
+    l->tail = getMaxInfByAgencyRec(l->tail, arr, minIndex); //Recorro la lista
     size_t max = 0;
     for(size_t i = minIndex; i < l->arrSize; i++){
-        if(l->infractionsArr[i] > max){
+        if(l->infractionsArr[i] > max){ //Busco la infraccion con mas tickets
             max = l->infractionsArr[i];
             strcpy(l->maxInfractionName, arr[i].infractionName);
         } else if(l->infractionsArr[i] == max && my_strcasecmp(arr[i].infractionName, l->maxInfractionName) < 0){
-            strcpy(l->maxInfractionName, arr[i].infractionName);
+            strcpy(l->maxInfractionName, arr[i].infractionName);    //Si hay dos con la misma cantidad de tickets, me quedo con la que tenga el nombre menor alfabeticamente
         }
     }
-    l->maxInfractionAmm = max;
+    l->maxInfractionAmm = max; //Guardo la cantidad de tickets
     return l;
 }
 
 void getMaxInfByAgency(parkingTicketsADT q){
     size_t minIndex = 0;
-    for(size_t i = 0; i < q->infArraySize; i++){
+
+    for(size_t i = 0; i < q->infArraySize; i++){ //Busco el primer index que tenga nombre
         if(q->infractionArr[i].infractionName[0] != '\0'){
             minIndex = i;
             break;
         }
     }
 
-    q->agency = getMaxInfByAgencyRec(q->agency, q->infractionArr, minIndex);
+    q->agency = getMaxInfByAgencyRec(q->agency, q->infractionArr, minIndex); //Busco la infraccion con mas tickets
 }
 
 void writeQuery2(FILE * query2File, agencyList l){
     if (l == NULL){
         return;
-    }
-    fprintf(query2File,"%s;%s;%zu\n",l->issuingAgencyName, l->maxInfractionName, l->maxInfractionAmm);
+    } 
+    fprintf(query2File,"%s;%s;%zu\n",l->issuingAgencyName, l->maxInfractionName, l->maxInfractionAmm); //Escribo el CSV
     writeQuery2(query2File, l->tail);
 }
 
 void query2(FILE * query2File, parkingTicketsADT q){
-    getMaxInfByAgency(q);
+    getMaxInfByAgency(q); //Busco la infraccion con mas tickets
     fprintf(query2File,"issuingAgency;infraction;tickets\n");
-    writeQuery2(query2File, q->agency);
+    writeQuery2(query2File, q->agency); //Escribo el CSV
 }
 
-
-
 static plateList addPlateTicketsByInfRec(plateList root, char * plate, int * flag){
-    if (root == NULL){
+    if (root == NULL){ /*Si no existe la patente, la agrego*/
         plateList aux = malloc(sizeof(plateNode));
         if (aux == NULL || errno == ENOMEM){
             *flag = 0;
@@ -295,12 +293,12 @@ static plateList addPlateTicketsByInfRec(plateList root, char * plate, int * fla
         return aux;
     }
     int cmp = my_strcasecmp(plate, root->plate);
-    if (cmp == 0){
+    if (cmp == 0){ /*Si la patente ya existe, sumo 1 a la cantidad de infracciones*/
         root->cant += 1;
     } else if (cmp < 0){
-        root->left = addPlateTicketsByInfRec(root->left, plate, flag);
+        root->left = addPlateTicketsByInfRec(root->left, plate, flag); /*Si la patente es menor alfabeticamente, la agrego a la izquierda*/
     } else{
-        root->right = addPlateTicketsByInfRec(root->right, plate, flag);
+        root->right = addPlateTicketsByInfRec(root->right, plate, flag); /*Si la patente es mayor alfabeticamente, la agrego a la derecha*/
     }
     return root;
 }
@@ -352,10 +350,10 @@ void writeQuery3(FILE * query3File, maxPlateByInfList l){
 
 
 static void getMaxPlateByInfRec(maxPlateByInfList *l, maxPlateByInfList aux){
-    while (*l != NULL && my_strcasecmp((*l)->infractionName, aux->infractionName) <= 0) {
-        l = &(*l)->tail;
+    while (*l != NULL && my_strcasecmp((*l)->infractionName, aux->infractionName) <= 0){ 
+        l = &(*l)->tail; /*Busco el lugar donde agregar la infraccion*/
     }
-    aux->tail = *l;
+    aux->tail = *l; 
     *l = aux;
 }
 
@@ -364,37 +362,37 @@ void maxPlateFinder(plateList first, maxPlateByInfList aux, size_t * max){
     if (first == NULL){
         return;
     }
-    maxPlateFinder(first->left, aux, max);
-    if (first->cant > *max){
+    maxPlateFinder(first->left, aux, max); /*Recorro el subarbol izquierdo*/
+    if (first->cant > *max){ /*Si la cantidad de infracciones es mayor al maximo, actualizo el maximo*/
         *max = first->cant;
         strcpy(aux->maxPlateName, first->plate);
-    } else if( first->cant == *max && my_strcasecmp(first->plate, aux->maxPlateName) < 0){
+    } else if( first->cant == *max && my_strcasecmp(first->plate, aux->maxPlateName) < 0){ /*Si la cantidad de infracciones es igual al maximo, me quedo con la patente que tenga el nombre menor alfabeticamente*/
         strcpy(aux->maxPlateName, first->plate);
     }
-    maxPlateFinder(first->right, aux, max);
+    maxPlateFinder(first->right, aux, max); /*Recorro el subarbol derecho*/
 }
 
 /*Retorna la lista armada con los datos como corresponde para pasarla a la funcion del CSV*/
 maxPlateByInfList getMaxPlateByInf(parkingTicketsADT q){
     maxPlateByInfList first = NULL;
     for (size_t i = 0; i < q->infPlateSize; i++){
-        if (q->infractionArr[i].infractionName[0] != '\0'){
+        if (q->infractionArr[i].infractionName[0] != '\0'){ /*Si la infraccion tiene nombre*/
             maxPlateByInfList aux = malloc(sizeof(maxPlateByInfNode));
             if (aux == NULL || errno == ENOMEM){
                 freeADT(q);
                 throwError("Memory error");
             }
             aux->maxInfractionAmm = 0;
-            maxPlateFinder(q->infPlateArr[i].first, aux, &aux->maxInfractionAmm);
-            strcpy(aux->infractionName, q->infractionArr[i].infractionName);
+            maxPlateFinder(q->infPlateArr[i].first, aux, &aux->maxInfractionAmm); /*Busco la patente con mas infracciones*/
+            strcpy(aux->infractionName, q->infractionArr[i].infractionName); /*Guardo el nombre de la infraccion*/
             if (aux->maxInfractionAmm == 0){ /*No encontro patente*/
                 free(aux);
             } else {
-                if (first == NULL || my_strcasecmp(first->infractionName, q->infractionArr[i].infractionName) > 0){
+                if (first == NULL || my_strcasecmp(first->infractionName, q->infractionArr[i].infractionName) > 0){ /*Si la infraccion es mayor alfabeticamente, la agrego al principio*/
                     aux->tail = first;
                     first = aux;           
                 } else {
-                    getMaxPlateByInfRec(&first->tail, aux); 
+                    getMaxPlateByInfRec(&first->tail, aux); /*Si no, la agrego en el lugar correspondiente*/
                 }
             }
         }
@@ -403,15 +401,15 @@ maxPlateByInfList getMaxPlateByInf(parkingTicketsADT q){
 }
 
 void query3(FILE * query3file, parkingTicketsADT q){
-    maxPlateByInfList l = getMaxPlateByInf(q);
+    maxPlateByInfList l = getMaxPlateByInf(q); //Armo la lista de patentes
     fprintf(query3file,"infraction;plate;tickets\n");
-    writeQuery3(query3file, l);
-    freeQ3(l);    
+    writeQuery3(query3file, l); //Escribo el CSV
+    freeQ3(l);            //Libero la memoria
 }
 
 void throwError(const char * msg){
-    perror(msg);
-    exit(EXIT_FAILURE);
+    perror(msg); //Imprimo el mensaje de error
+    exit(EXIT_FAILURE); 
 }
 
 static void freeRec(agencyList l){
